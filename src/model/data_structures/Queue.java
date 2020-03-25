@@ -48,6 +48,16 @@ public class Queue<T> implements Iterable<T> {
 	{
 		return size;
 	}
+	
+	public Node<T> darPrimerNodo()
+	{
+		return primero;
+	}
+	
+	public Node<T> darUltimoNodo()
+	{
+		return ultimo;
+	}
 
 	public T darPrimerElemento()
 	{

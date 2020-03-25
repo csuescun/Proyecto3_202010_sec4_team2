@@ -1,17 +1,21 @@
 package model.logic;
 
-import model.data_structures.ArregloDinamico;
-import model.data_structures.IArregloDinamico;
+import model.data_structures.*;
 
 /**
  * Definicion del modelo del mundo
  *
  */
 public class Modelo {
+	
+	
 	/**
 	 * Atributos del modelo del mundo
 	 */
-	private IArregloDinamico datos;
+	
+	private LinearProbingHash<String, Comparendo> hashLP;
+	
+	private 
 	
 	/**
 	 * Constructor del modelo del mundo con capacidad predefinida
