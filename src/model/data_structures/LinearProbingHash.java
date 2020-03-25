@@ -2,7 +2,7 @@ package model.data_structures;
 
 import java.util.Iterator;
 
-public class LinearProbingHash<Key,Value> implements Iterable<Key> {
+public class LinearProbingHash<Key,Value>  {
 	
 	private int m;//tamano de la tabla
 	private int n;//numero de elementos
@@ -103,34 +103,7 @@ public class LinearProbingHash<Key,Value> implements Iterable<Key> {
 	        m    = temp.m;
 	    }
 	 
-	@Override
-	public Iterator<Key> iterator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	 
-	 protected class KeyIterator implements Iterator<Key>
-	 {
-		 Key actual;
-		 
-		 public KeyIterator()
-		 {
-			 actual = keys[0];
-		 }
-
-		@Override
-		public boolean hasNext() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public Key next() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-		 
-	 }
+	
 	
 	
 
