@@ -58,7 +58,7 @@ public class SeparateChainingHash<Key,Value> {
 	        st[i].delete(key);
 
 	        // halve table size if average length of list <= 2
-	        if (m > INIT_CAPACITY && n <= 2*m) resize(m/2);
+	        if ( n <= 2*m) resize(m/2);
 	    } 
 	 
 	 

@@ -1,6 +1,7 @@
 package model.data_structures;
 
 
+
 public class ST<Key,Value> {
 
 	 private int n;         
@@ -64,6 +65,12 @@ public class ST<Key,Value> {
 	        return x;
 	    }
 	    
-	    //Falta iterator
+	    //Falta iterator - ya no
+	    public Iterable<Key> keys()  {
+	        Queue<Key> queue =  new Queue<Key>();
+	        for (Node x = first; x != null; x = x.next)
+	            queue.enqueue(x.key);
+	        return queue;
+	    }
 
 }
