@@ -7,9 +7,12 @@ public class SeparateChainingHash<Key,Value> {
 	private ST<Key, Value>[] st;
 	
 	public SeparateChainingHash(int tamano) {
-        m = tamano;
-        st = (ST<Key, Value>[]) new ST[m];
-        for (int i = 0; i < m; i++)
+        
+		m = tamano;
+        
+		st = (ST<Key, Value>[]) new ST[m];
+        
+		for (int i = 0; i < m; i++)
             st[i] = new ST<Key, Value>();
     } 
 	

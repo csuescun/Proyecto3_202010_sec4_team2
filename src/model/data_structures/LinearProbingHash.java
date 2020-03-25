@@ -14,6 +14,7 @@ public class LinearProbingHash<Key,Value>  {
 	{
 		m = tamano;
 		n = 0;
+		
 		keys = (Key[]) new Object[m];
 		values = (Queue<Value>[]) new Object[m];
 	}
@@ -55,7 +56,7 @@ public class LinearProbingHash<Key,Value>  {
 		n++;
 
 	}
-	public Queue<Value> get(Key key) {
+	public Queue<Value> getSet(Key key) {
 		if (key == null) throw new IllegalArgumentException("argument to get() is null");
 		for (int i = hash(key); keys[i] != null; i = (i + 1) % m)
 			if (keys[i].equals(key))
@@ -65,7 +66,7 @@ public class LinearProbingHash<Key,Value>  {
 
 	public boolean contains(Key key) {
 		if (key == null) throw new IllegalArgumentException("argument to contains() is null");
-		return get(key) != null;
+		return getSet(key) != null;
 	}
 
 	public Iterator<Value> deleteSet(Key key) {
