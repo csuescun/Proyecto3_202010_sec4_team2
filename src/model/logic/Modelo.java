@@ -78,7 +78,7 @@ public class Modelo {
 				Comparendo c = new Comparendo(OBJECTID, FECHA_HORA, MEDIO_DETE, CLASE_VEHI, TIPO_SERVI, INFRACCION,DES_INFRAC, LOCALIDAD, longitud, latitud, MUNICIPIO);
 				String key = c.darSimpleDate()+c.darClaseVehiculo()+c.darInfraccion();
 				hashLP.putInSet(key, c);
-				hashSC.put(key, c);
+				hashSC.putInSet(key, c);
 
 
 			}
@@ -90,6 +90,8 @@ public class Modelo {
 			e.printStackTrace();
 		}
 	}
+	
+	
 	
 
 
