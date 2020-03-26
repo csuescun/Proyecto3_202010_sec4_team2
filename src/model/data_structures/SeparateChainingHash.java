@@ -32,13 +32,13 @@ public class SeparateChainingHash<Key,Value> {
         this.st = temp.st;
     }
 	
-	public Value get(Key key) {
+	public Queue<Value> get(Key key) {
         if (key == null) throw new IllegalArgumentException("argument to get() is null");
         int i = hash(key);
         return st[i].get(key);
     } 
 	
-	 public void put(Key key, Value val) {
+	 public void put(Key key, Queue<Value> val) {
 	        if (key == null) throw new IllegalArgumentException("first argument to put() is null");
 	        if (val == null) {
 	            delete(key);
