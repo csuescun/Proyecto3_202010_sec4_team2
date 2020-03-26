@@ -146,6 +146,23 @@ public class Modelo {
 	}
 
 	
+	public int darTamano()
+	{
+		return datos.darTamano();
+	}
+
+	
+	public Comparendo darPrimeroCola()
+	{
+		return datos.darPrimerElemento();
+	}
+
+	public Comparendo darUltimoCola()
+	{
+		return datos.darUltimoElemento();
+	}
+
+	
 	
 	// Otros 
 	public int darTamanoLinearProbing()
@@ -181,18 +198,6 @@ public class Modelo {
 		return hashSC.darTotalRehashes();
 	}
 
-
-	public void agregarHashLP(Comparendo comparendo)
-	{
-		String key = comparendo.darSimpleDate()+comparendo.darClaseVehiculo()+comparendo.darInfraccion();
-		hashLP.putInSet(key, comparendo);
-	}
-
-	public void agregarHashSC(Comparendo comparendo)
-	{
-		String key = comparendo.darSimpleDate()+comparendo.darClaseVehiculo()+comparendo.darInfraccion();
-		hashSC.putInSet(key, comparendo);
-	}
 
 	//Requerimiento 1
 

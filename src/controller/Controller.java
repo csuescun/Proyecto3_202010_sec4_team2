@@ -2,6 +2,7 @@ package controller;
 
 import java.util.Scanner;
 
+import model.logic.Comparendo;
 import model.logic.Modelo;
 import view.View;
 
@@ -35,59 +36,84 @@ public class Controller {
 
 			int option = lector.nextInt();
 			switch(option){
-				case 1:
-					view.printMessage("--------- \nCrear Arreglo \nDar capacidad inicial del arreglo: ");
-				    int capacidad = lector.nextInt();
-				    modelo = new Modelo(capacidad); 
-				    view.printMessage("Arreglo Dinamico creado");
-				    view.printMessage("Numero actual de elementos " + modelo.darTamano() + "\n---------");						
-					break;
+				
+			case 1:
+				
+				modelo = new Modelo();
+				
+				int tamanoInicialLP = modelo.darTamanoLinearProbing();
+				int tamanoInicialSC = modelo.darTamanoSeparateChaining();
+				
+				long start = System.currentTimeMillis();
+				modelo.cargarDatos(); 
+				long end = System.currentTimeMillis();
+										
+				view.printMessage("Datos de comparendos cargados.");
+				view.printMessage("Numero total de comparendos " + modelo.darTamano() + "\n---------");		
+				view.printMessage("Tiempo de carga (seg): " + (end-start)/1000.0);
+				
+				view.printMessage("Primer comparendo: " + modelo.darPrimeroCola() + "\n");
+				view.printMessage("Ultimo comparendo: "+modelo.darUltimoCola()+"\n");
+				
+				
+				view.printMessage("\n---------");
+				view.printMessage("        Linear Probing         | Separate Chaining");
+				view.printMessage("Numero de duplas: " + modelo.darTotalDuplasLP() + "    |" + modelo.darTotalDuplasSC() );
+				view.printMessage("Tamano inicial: " + tamanoInicialLP + "   |" + tamanoInicialSC);
+				view.printMessage("Tamano final: " + modelo.darTamanoLinearProbing() + "   |" + modelo.darTamanoSeparateChaining());
+				view.printMessage("Factor de recarga: " + modelo.darTotalDuplasLP()/modelo.darTamanoLinearProbing() + "   |" + modelo.darTotalDuplasSC()/modelo.darTamanoSeparateChaining());
+				view.printMessage("Rehashes: " + modelo.darTotalRehashesLP() + "   |" + modelo.darTotalRehashesSC());
+				break;				
+		
 
 				case 2:
-					view.printMessage("--------- \nDar cadena (simple) a ingresar: ");
-					dato = lector.next();
-					modelo.agregar(dato);
-					view.printMessage("Dato agregado");
-					view.printMessage("Numero actual de elementos " + modelo.darTamano() + "\n---------");						
+					
+				view.printMessage("Ingrese la fecha que desea buscar (YYYY/mm/DD)");
+				String fecha = lector.next();
+				
+				view.printMessage("Ingrese la clase de vehiculo que desea buscar (en mayusculas):");
+				String clase = lector.next();
+				
+				view.printMessage("Ingrese la infraccion que desea buscar (en mayusculas):");
+				String infraccion = lector.next();
+						
+				Comparable[] buscados = modelo.busquedaLP(fecha, clase, infraccion);
+				
+				for(int i = 0; i< buscados.length ;i++)
+				{
+					Comparendo c = (Comparendo) buscados[i];
+					view.printMessage(c.datosCluster());
+				}
 					break;
 
 				case 3:
-					view.printMessage("--------- \nDar cadena (simple) a buscar: ");
-					dato = lector.next();
-					respuesta = modelo.buscar(dato);
-					if ( respuesta != null)
+					
+					view.printMessage("Ingrese la fecha que desea buscar (YYYY/mm/DD)");
+					String fecha2 = lector.next();
+					
+					view.printMessage("Ingrese la clase de vehiculo que desea buscar (en mayusculas):");
+					String clase2 = lector.next();
+					
+					view.printMessage("Ingrese la infraccion que desea buscar (en mayusculas):");
+					String infraccion2 = lector.next();
+							
+					Comparable[] buscados2 = modelo.busquedaLP(fecha2, clase2, infraccion2);
+					
+					for(int i = 0; i< buscados2.length ;i++)
 					{
-						view.printMessage("Dato encontrado: "+ respuesta);
+						Comparendo c = (Comparendo) buscados2[i];
+						view.printMessage(c.datosCluster());
 					}
-					else
-					{
-						view.printMessage("Dato NO encontrado");
-					}
-					view.printMessage("Numero actual de elementos " + modelo.darTamano() + "\n---------");						
 					break;
 
 				case 4:
-					view.printMessage("--------- \nDar cadena (simple) a eliminar: ");
-					dato = lector.next();
-					respuesta = modelo.eliminar(dato);
-					if ( respuesta != null)
-					{
-						view.printMessage("Dato eliminado "+ respuesta);
-					}
-					else
-					{
-						view.printMessage("Dato NO eliminado");							
-					}
-					view.printMessage("Numero actual de elementos " + modelo.darTamano() + "\n---------");						
-					break;
-
-				case 5: 
-					view.printMessage("--------- \nContenido del Arreglo: ");
-					view.printModelo(modelo);
-					view.printMessage("Numero actual de elementos " + modelo.darTamano() + "\n---------");						
-					break;	
 					
-				case 6: 
+					view.printMessage(modelo.pruebaDesempeño());
+					
+					break;
+					
+				case 5:
+		
 					view.printMessage("--------- \n Hasta pronto !! \n---------"); 
 					lector.close();
 					fin = true;
