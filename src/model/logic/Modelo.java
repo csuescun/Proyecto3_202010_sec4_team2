@@ -2,7 +2,9 @@ package model.logic;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -98,11 +100,68 @@ public class Modelo {
 			}
 
 		} 
+	
 
 		catch (FileNotFoundException e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
+	}
+	
+	
+
+	public void cargarDatosSmall() 
+
+	{
+		JsonReader reader;
+
+		try {
+
+			int mayorID  = 0;
+			reader = new JsonReader(new FileReader("./data/comparendos_dei_2018_small.geojson"));
+			JsonParser jsonp = new JsonParser();
+
+			JsonElement elem = jsonp.parse(reader);
+			JsonArray e2 = elem.getAsJsonObject().get("features").getAsJsonArray();
+
+
+			SimpleDateFormat parser=new SimpleDateFormat("yyyy/MM/dd");
+
+			for(JsonElement e: e2) {
+				int OBJECTID = e.getAsJsonObject().get("properties").getAsJsonObject().get("OBJECTID").getAsInt();
+
+				String FECHA_HORA = e.getAsJsonObject().get("properties").getAsJsonObject().get("FECHA_HORA").getAsString();	
+				
+
+				String MEDIO_DETE = e.getAsJsonObject().get("properties").getAsJsonObject().get("MEDIO_DETE").getAsString();
+				String CLASE_VEHI = e.getAsJsonObject().get("properties").getAsJsonObject().get("CLASE_VEHI").getAsString();
+				String TIPO_SERVI = e.getAsJsonObject().get("properties").getAsJsonObject().get("TIPO_SERVI").getAsString();
+				String INFRACCION = e.getAsJsonObject().get("properties").getAsJsonObject().get("INFRACCION").getAsString();
+				String DES_INFRAC = e.getAsJsonObject().get("properties").getAsJsonObject().get("DES_INFRAC").getAsString();	
+				String LOCALIDAD = e.getAsJsonObject().get("properties").getAsJsonObject().get("LOCALIDAD").getAsString();
+
+				double longitud = e.getAsJsonObject().get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray()
+						.get(0).getAsDouble();
+
+				double latitud = e.getAsJsonObject().get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray()
+						.get(1).getAsDouble();
+
+				Comparendo c = new Comparendo(OBJECTID, FECHA_HORA, MEDIO_DETE, CLASE_VEHI, TIPO_SERVI, INFRACCION,DES_INFRAC, LOCALIDAD, longitud, latitud,"");
+				String key = c.darSimpleDate()+c.darClaseVehiculo()+c.darInfraccion();
+				
+				datos.enqueue(c);
+				hashLP.putInSet(key, c);
+				hashSC.putInSet(key, c);
+				
+
+			}
+
+		} catch (FileNotFoundException e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+
+
 	}
 
 	public Comparendo[] copiarArreglo(Queue<Comparendo> arreglo)

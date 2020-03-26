@@ -17,7 +17,7 @@ public class LinearProbingHash<Key,Value>  {
 		n = 0;
 		
 		keys = (Key[]) new Object[m];
-		values = (Queue<Value>[]) new Object[m];
+		values = new Queue[m];
 	}
 
 	

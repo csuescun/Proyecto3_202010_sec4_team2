@@ -82,8 +82,10 @@ public class Comparendo implements Comparable<Comparendo> {
 	public Comparendo(int pObjectID, String pFecha, String pMedioDete, String pClaseVehiculo, String pTipoServicio, String pInfraccion, String pDesInfraccion, String pLocalidad, double pLatitud, double pLongitud, String pMunicipio)
 	{
 		try{
+		
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); 
 		fecha = formatter.parse(pFecha);
+		
 		}
 		catch(ParseException e)
 		{
