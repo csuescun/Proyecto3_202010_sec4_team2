@@ -257,12 +257,80 @@ public class Modelo {
 			
 			else
 			{
-				Comparendo nuevo = new Comparendo(29042+i,)
+				//TODO Crear comparendo aleatorio
+			
 			}
 		}
 		
 		
+		//Linear Probing
+		long minimoLP = 1000000000;
+		long maximoLP = 0;
+		long suma=0;
 		
+		for (int i = 0; i < tiemposLP.length; i++) 
+		{
+			inicio = System.currentTimeMillis();
+			String llave = muestraFinal[i].darSimpleDate()+muestraFinal[i].darClaseVehiculo()+muestraFinal[i].darInfraccion();
+			Queue<Comparendo> buscado = hashLP.getSet(llave);
+			fin = System.currentTimeMillis();
+			duracion = fin-inicio;
+			tiemposLP[i]=duracion;
+			
+			if(duracion>maximoLP)
+			{
+				maximoLP = duracion;
+			}
+			
+			else if(duracion<minimoLP)
+			{
+				duracion=minimoLP;
+			}
+			
+			suma+=duracion;
+		}
+		
+		long promedioLP = suma/tiemposLP.length;
+		
+		
+		//Separate Chaining
+		
+		long minimoSC = 1000000000;
+		long maximoSC = 0;
+		long sumaSC=0;
+		
+		for (int i = 0; i < tiemposLP.length; i++) 
+		{
+			inicio = System.currentTimeMillis();
+			String llave = muestraFinal[i].darSimpleDate()+muestraFinal[i].darClaseVehiculo()+muestraFinal[i].darInfraccion();
+			Queue<Comparendo> buscado = hashSC.getSet(llave);
+			fin = System.currentTimeMillis();
+			duracion = fin-inicio;
+			tiemposLP[i]=duracion;
+			
+			if(duracion>maximoLP)
+			{
+				maximoLP = duracion;
+			}
+			
+			else if(duracion<minimoLP)
+			{
+				duracion=minimoLP;
+			}
+			
+			sumaSC+=duracion;
+		}
+		
+		
+		long promedioSC = suma/tiemposSC.length;
+		
+		
+		//Tabla
+		String respuesta =  "Tiempo minimo get(...)" + "   LP: " + minimoLP + "   SC: " + minimoSC + 
+				"\n Tiempo maximo get(...)" + "   LP: " + maximoLP + "   SC: " + maximoSC + 
+				"\n Tiempo promedio get(...)" + "   LP: " + promedioLP + "   SC: " + promedioSC; 
+		
+		return respuesta;
 		
 	}
 
