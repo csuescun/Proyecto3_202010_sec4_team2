@@ -53,7 +53,7 @@ public class SeparateChainingHash<Key,Value> {
 	}
 	
 	
-	private boolean contains(Key key)
+	public boolean contains(Key key)
 	{
 		return getSet(key) != null;
 	}
@@ -90,19 +90,19 @@ public class SeparateChainingHash<Key,Value> {
 		numRehashes ++;
 	}
 
-	public Iterator<Value> getSet(Key key) {
+	public Queue<Value> getSet(Key key) {
 
 		if (key == null) throw new IllegalArgumentException("La llave ingresada es null");
 
 		int i = hash(key);
 		NodoHash actual = st[i];
-		Iterator<Value> aDevolver = null; 
+		Queue<Value> aDevolver = null; 
 
 		while(actual != null)
 		{
 			if(key.equals(actual.key))
 			{
-				aDevolver = actual.values.iterator();
+				aDevolver = actual.values;
 			}
 		}
 

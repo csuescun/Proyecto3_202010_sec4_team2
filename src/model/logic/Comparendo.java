@@ -185,10 +185,10 @@ public class Comparendo implements Comparable<Comparendo> {
 	public int compareTo(Comparendo comparendo) 
 	{
 		
-		double l1 = latitud;
-		double l2 = comparendo.darLatitud();
+		int l1 = objectID;
+		int l2 = comparendo.darObjectID();
 		
-		if(l1 >l2)
+		if(l1 > l2)
 		{
 			return 1;
 		}
