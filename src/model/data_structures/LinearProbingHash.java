@@ -24,7 +24,7 @@ public class LinearProbingHash<Key,Value>  {
 	}
 
 
-	void putInSet(Key k, Value v) 
+	public void putInSet(Key k, Value v) 
 	{
 		if(k == null)
 		{

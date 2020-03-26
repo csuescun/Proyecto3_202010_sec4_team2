@@ -1,5 +1,12 @@
 package model.logic;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.text.SimpleDateFormat;
+
+import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
+
 import model.data_structures.*;
 
 /**
@@ -8,69 +15,82 @@ import model.data_structures.*;
  */
 public class Modelo {
 	
+
 	
+	public static String PATH = "./data/Comparendos_DEI_2018_Bogotá_D.C.geojson";
 	/**
 	 * Atributos del modelo del mundo
 	 */
 	
 	private LinearProbingHash<String, Comparendo> hashLP;
 	
-	private 
+	private SeparateChainingHash<String, Comparendo> hashSC;
+	
 	
 	/**
 	 * Constructor del modelo del mundo con capacidad predefinida
-	 */
-	public Modelo()
+	*/
+	
+	public Modelo(int capacidadInicial)
 	{
-		datos = new ArregloDinamico(7);
+		hashLP = new LinearProbingHash<String, Comparendo>(capacidadInicial);
+		hashSC = new SeparateChainingHash<String, Comparendo>(capacidadInicial);
 	}
 	
-	/**
-	 * Constructor del modelo del mundo con capacidad dada
-	 * @param tamano
-	 */
-	public Modelo(int capacidad)
-	{
-		datos = new ArregloDinamico(capacidad);
-	}
 	
-	/**
-	 * Servicio de consulta de numero de elementos presentes en el modelo 
-	 * @return numero de elementos presentes en el modelo
-	 */
-	public int darTamano()
-	{
-		return datos.darTamano();
-	}
+	public void cargarDatos() 
 
-	/**
-	 * Requerimiento de agregar dato
-	 * @param dato
-	 */
-	public void agregar(String dato)
-	{	
-		datos.agregar(dato);
+	{
+		JsonReader reader;
+
+		try {
+
+			int mayorID  = 0;
+			reader = new JsonReader(new FileReader( PATH));
+			JsonParser jsonp = new JsonParser();
+
+			JsonElement elem = jsonp.parse(reader);
+			JsonArray e2 = elem.getAsJsonObject().get("features").getAsJsonArray();
+
+
+			SimpleDateFormat parser=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+			for(JsonElement e: e2) {
+				int OBJECTID = e.getAsJsonObject().get("properties").getAsJsonObject().get("OBJECTID").getAsInt();
+
+
+				String FECHA_HORA = e.getAsJsonObject().get("properties").getAsJsonObject().get("FECHA_HORA").getAsString();
+
+				String MEDIO_DETE = e.getAsJsonObject().get("properties").getAsJsonObject().get("MEDIO_DETECCION").getAsString();
+				String CLASE_VEHI = e.getAsJsonObject().get("properties").getAsJsonObject().get("CLASE_VEHICULO").getAsString();
+				String TIPO_SERVI = e.getAsJsonObject().get("properties").getAsJsonObject().get("TIPO_SERVICIO").getAsString();
+				String INFRACCION = e.getAsJsonObject().get("properties").getAsJsonObject().get("INFRACCION").getAsString();
+				String DES_INFRAC = e.getAsJsonObject().get("properties").getAsJsonObject().get("DES_INFRACCION").getAsString();	
+				String LOCALIDAD = e.getAsJsonObject().get("properties").getAsJsonObject().get("LOCALIDAD").getAsString();
+				String MUNICIPIO = e.getAsJsonObject().get("properties").getAsJsonObject().get("MUNICIPIO").getAsString();
+
+				double longitud = e.getAsJsonObject().get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray()
+						.get(0).getAsDouble();
+
+				double latitud = e.getAsJsonObject().get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray()
+						.get(1).getAsDouble();
+
+				Comparendo c = new Comparendo(OBJECTID, FECHA_HORA, MEDIO_DETE, CLASE_VEHI, TIPO_SERVI, INFRACCION,DES_INFRAC, LOCALIDAD, longitud, latitud, MUNICIPIO);
+				String key = c.darSimpleDate()+c.darClaseVehiculo()+c.darInfraccion();
+				hashLP.putInSet(key, c);
+				hashSC.put(key, c);
+
+
+			}
+
+		} 
+		
+		catch (FileNotFoundException e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 	
-	/**
-	 * Requerimiento buscar dato
-	 * @param dato Dato a buscar
-	 * @return dato encontrado
-	 */
-	public String buscar(String dato)
-	{
-		return datos.buscar(dato);
-	}
-	
-	/**
-	 * Requerimiento eliminar dato
-	 * @param dato Dato a eliminar
-	 * @return dato eliminado
-	 */
-	public String eliminar(String dato)
-	{
-		return datos.eliminar(dato);
-	}
 
 
 }
