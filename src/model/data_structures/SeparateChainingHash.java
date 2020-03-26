@@ -7,12 +7,17 @@ public class SeparateChainingHash<Key,Value> {
 
 	private int n;
 	private int m;
+	private int numRehashes;
 	private NodoHash[] st;
 
 	public SeparateChainingHash(int tamano) {
 
+		n = 0;
 		m = tamano;
+		numRehashes = 0;
+		
 		st = new SeparateChainingHash.NodoHash[tamano];
+		
 	} 
 
 	private class NodoHash 
@@ -31,6 +36,23 @@ public class SeparateChainingHash<Key,Value> {
 		
 	}
 
+	public int darTamano()
+	{
+		return m;
+	}
+	
+	public int darTotalDuplas()
+	{
+		return n; 
+	}
+	
+	
+	public int darTotalRehashes()
+	{
+		return numRehashes;
+	}
+	
+	
 	private boolean contains(Key key)
 	{
 		return getSet(key) != null;
@@ -61,9 +83,11 @@ public class SeparateChainingHash<Key,Value> {
 				}
 			}
 		}
+		
 		this.m  = temp.m;
 		this.n  = temp.n;
 		this.st = temp.st;
+		numRehashes ++;
 	}
 
 	public Iterator<Value> getSet(Key key) {

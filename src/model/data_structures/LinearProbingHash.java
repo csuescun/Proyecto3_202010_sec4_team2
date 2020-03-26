@@ -6,6 +6,7 @@ public class LinearProbingHash<Key,Value>  {
 
 	private int m;//tamano de la tabla
 	private int n;//numero de elementos
+	private int numRehashes;
 	private Key[] keys;
 	private Queue<Value>[] values;
 
@@ -19,6 +20,22 @@ public class LinearProbingHash<Key,Value>  {
 		values = (Queue<Value>[]) new Object[m];
 	}
 
+	
+	public int darTamano()
+	{
+		return m;
+	}
+	
+	public int darTotalDuplas()
+	{
+		return n;
+	}
+	
+	public int darTotalRehashes()
+	{
+		return numRehashes;
+	}
+	
 	private int hash(Key key) {
 		return (key.hashCode() & 0x7fffffff) % m;
 	}
@@ -116,7 +133,7 @@ public class LinearProbingHash<Key,Value>  {
 		n--;
 
 
-		if (n > 0 && n <= m/8) resize(m/2);
+		if (n > 0 && n/m <= .75) resize(m/2);
 
 		return conjunto.iterator();
 	}
@@ -143,6 +160,7 @@ public class LinearProbingHash<Key,Value>  {
 		values = temp.values;
 		
 		m    = temp.m;
+		numRehashes ++;
 	}
 
 

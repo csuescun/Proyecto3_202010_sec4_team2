@@ -31,16 +31,19 @@ public class Modelo {
 	 * Constructor del modelo del mundo con capacidad predefinida
 	*/
 	
-	public Modelo(int capacidadInicial)
+	public Modelo()
 	{
-		hashLP = new LinearProbingHash<String, Comparendo>(capacidadInicial);
-		hashSC = new SeparateChainingHash<String, Comparendo>(capacidadInicial);
+		hashLP = new LinearProbingHash<String, Comparendo>(7);
+		hashSC = new SeparateChainingHash<String, Comparendo>(7);
 	}
 	
 	
 	public void cargarDatos() 
 
 	{
+		hashLP = new LinearProbingHash<String, Comparendo>(7);
+		hashSC = new SeparateChainingHash<String, Comparendo>(7);
+		
 		JsonReader reader;
 
 		try {
@@ -90,6 +93,8 @@ public class Modelo {
 			e.printStackTrace();
 		}
 	}
+	
+	
 	
 	
 	
