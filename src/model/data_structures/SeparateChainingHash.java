@@ -15,9 +15,9 @@ public class SeparateChainingHash<Key,Value> {
 		n = 0;
 		m = tamano;
 		numRehashes = 0;
-		
+
 		st = new SeparateChainingHash.NodoHash[tamano];
-		
+
 	} 
 
 	private class NodoHash 
@@ -33,26 +33,26 @@ public class SeparateChainingHash<Key,Value> {
 			values = pValues;
 			siguiente = pSiguiente;
 		}
-		
+
 	}
 
 	public int darTamano()
 	{
 		return m;
 	}
-	
+
 	public int darTotalDuplas()
 	{
 		return n; 
 	}
-	
-	
+
+
 	public int darTotalRehashes()
 	{
 		return numRehashes;
 	}
-	
-	
+
+
 	public boolean contains(Key key)
 	{
 		return getSet(key) != null;
@@ -63,27 +63,26 @@ public class SeparateChainingHash<Key,Value> {
 		return (key.hashCode() & 0x7fffffff) % m;
 	} 
 
-	private void resize(int chains) 
+	public void resize(int chains) 
 	{
 		SeparateChainingHash<Key, Value> temp = new SeparateChainingHash<Key, Value>(chains);
-		
-		for (int i = 0; i < m; i++) 
+
+
+		for(int j = 0; j < st.length; j++)
 		{
-			for(int j = 0; j < st.length; j++)
+			if(st[j] != null)
 			{
-				if(st[j] != null)
+				NodoHash actual = st[j];
+
+				while(actual != null)
 				{
-					NodoHash actual = st[j];
-					
-					while(actual != null)
-					{
-						temp.put(actual.key, actual.values);
-						actual = actual.siguiente;
-					}
+					temp.put(actual.key, actual.values);
+					actual = actual.siguiente;
 				}
 			}
 		}
-		
+
+
 		this.m  = temp.m;
 		this.n  = temp.n;
 		this.st = temp.st;
@@ -95,18 +94,19 @@ public class SeparateChainingHash<Key,Value> {
 		if (key == null) throw new IllegalArgumentException("La llave ingresada es null");
 
 		int i = hash(key);
-		NodoHash actual = st[i];
-		Queue<Value> aDevolver = null; 
+		NodoHash actual = st[i]; 
 
 		while(actual != null)
 		{
 			if(key.equals(actual.key))
 			{
-				aDevolver = actual.values;
+				return actual.values;
 			}
+
+			actual = actual.siguiente;
 		}
 
-		return aDevolver;
+		return null;
 
 	} 
 
@@ -137,25 +137,26 @@ public class SeparateChainingHash<Key,Value> {
 		st[i] = new NodoHash(key, valores, st[i]);
 		n++;
 	} 
-	
+
 	public void put(Key key, Queue<Value> val)
 	{
 		if(n/m >= 5) resize(2*m);
-		
+
 		int i = hash(key);
 		NodoHash actual = st[i];
-		
+
 		while(actual != null)
 		{
 			if(key.equals(actual.key))
 			{
 				actual.values = val;
 			}
+
+			actual = actual.siguiente; 
 		}
-		
+
 		st[i] = new NodoHash(key, val, st[i]);
 		n++;
-		
 	}
 
 
@@ -185,15 +186,15 @@ public class SeparateChainingHash<Key,Value> {
 		return aDevolver;
 	} 
 
-	
+
 	public Iterator<Key> keys() 
 	{
-		 Queue<Key> llaves = new Queue<Key>();
-	     for (int i = 0; i < m; i++)
-	         if (st[i] != null) llaves.enqueue(st[i].key);
-	     return llaves.iterator();
+		Queue<Key> llaves = new Queue<Key>();
+		for (int i = 0; i < m; i++)
+			if (st[i] != null) llaves.enqueue(st[i].key);
+		return llaves.iterator();
 	}
-	
+
 
 
 

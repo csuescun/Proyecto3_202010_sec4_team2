@@ -61,7 +61,7 @@ public class Controller {
 				view.printMessage("Numero de duplas: " + modelo.darTotalDuplasLP() + "    |" + modelo.darTotalDuplasSC() );
 				view.printMessage("Tamano inicial: " + tamanoInicialLP + "   |" + tamanoInicialSC);
 				view.printMessage("Tamano final: " + modelo.darTamanoLinearProbing() + "   |" + modelo.darTamanoSeparateChaining());
-				view.printMessage("Factor de recarga: " + modelo.darTotalDuplasLP()/modelo.darTamanoLinearProbing() + "   |" + modelo.darTotalDuplasSC()/modelo.darTamanoSeparateChaining());
+				view.printMessage("Factor de recarga: " + (double) modelo.darTotalDuplasLP()/modelo.darTamanoLinearProbing() + "   |" + (double) modelo.darTotalDuplasSC()/modelo.darTamanoSeparateChaining());
 				view.printMessage("Rehashes: " + modelo.darTotalRehashesLP() + "   |" + modelo.darTotalRehashesSC());
 				break;				
 		

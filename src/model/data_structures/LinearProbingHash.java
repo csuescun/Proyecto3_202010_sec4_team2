@@ -138,7 +138,7 @@ public class LinearProbingHash<Key,Value>  {
 		return conjunto.iterator();
 	}
 
-	private void resize(int capacity) {
+	public void resize(int capacity) {
 		LinearProbingHash<Key, Value> temp = new LinearProbingHash<Key, Value>(capacity);
 		
 		for (int i = 0; i < m; i++) 
