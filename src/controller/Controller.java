@@ -108,7 +108,7 @@ public class Controller {
 
 				case 4:
 					
-					view.printMessage(modelo.pruebaDesempeño());
+					view.printMessage(modelo.pruebaDesempeno());
 					
 					break;
 					

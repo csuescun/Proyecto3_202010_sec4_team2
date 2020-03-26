@@ -21,7 +21,7 @@ public class Modelo {
 
 
 
-	public static String PATH = "./data/Comparendos_DEI_2018_Bogotá_D.C.geojson";
+	public static String PATH = "./data/Comparendos_DEI_2018_Bogota_D.C_small.geojson";
 	/**
 	 * Atributos del modelo del mundo
 	 */
@@ -298,7 +298,7 @@ public class Modelo {
 
 // Requerimiento 3
 	
-	public String pruebaDesempeño()
+	public String pruebaDesempeno()
 	{
 		long inicio = 0;
 		long fin = 0;
@@ -322,7 +322,12 @@ public class Modelo {
 			else
 			{
 				//TODO Crear comparendo aleatorio
-			
+				Random generator = new Random();
+				int x = generator.nextInt(9);
+				String date = ""+2019+"/"+x+"/"+x;
+				Comparendo nuevo = new Comparendo(22222, date,"aaaaa" , "bicicleta", "particular", "C02", "colision", "Teusaquillo",74.08775699999995, 4.616270400000076, "Bogot�");
+				muestraFinal[i] = nuevo;
+
 			}
 		}
 		
