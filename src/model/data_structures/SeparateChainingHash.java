@@ -3,7 +3,8 @@ package model.data_structures;
 import java.util.Iterator;
 
 
-public class SeparateChainingHash<Key,Value> {
+public class SeparateChainingHash<Key extends Comparable<Key>,Value extends Comparable <Value>> implements IHash<Key, Value>
+{
 
 	private int n;
 	private int m;

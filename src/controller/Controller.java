@@ -41,9 +41,7 @@ public class Controller {
 				
 				modelo = new Modelo();
 				
-				int tamanoInicialLP = modelo.darTamanoLinearProbing();
-				int tamanoInicialSC = modelo.darTamanoSeparateChaining();
-				
+			
 				long start = System.currentTimeMillis();
 				modelo.cargarDatos(); 
 				long end = System.currentTimeMillis();
@@ -56,60 +54,19 @@ public class Controller {
 				view.printMessage("Ultimo comparendo: "+modelo.darUltimoCola()+"\n");
 				
 				
-				view.printMessage("\n---------");
-				view.printMessage("        Linear Probing         | Separate Chaining");
-				view.printMessage("Numero de duplas: " + modelo.darTotalDuplasLP() + "    |" + modelo.darTotalDuplasSC() );
-				view.printMessage("Tamano inicial: " + tamanoInicialLP + "   |" + tamanoInicialSC);
-				view.printMessage("Tamano final: " + modelo.darTamanoLinearProbing() + "   |" + modelo.darTamanoSeparateChaining());
-				view.printMessage("Factor de recarga: " + (double) modelo.darTotalDuplasLP()/modelo.darTamanoLinearProbing() + "   |" + (double) modelo.darTotalDuplasSC()/modelo.darTamanoSeparateChaining());
-				view.printMessage("Rehashes: " + modelo.darTotalRehashesLP() + "   |" + modelo.darTotalRehashesSC());
 				break;				
 		
 
 				case 2:
-					
-				view.printMessage("Ingrese la fecha que desea buscar (YYYY/mm/DD)");
-				String fecha = lector.next();
 				
-				view.printMessage("Ingrese la clase de vehiculo que desea buscar (en mayusculas):");
-				String clase = lector.next();
-				
-				view.printMessage("Ingrese la infraccion que desea buscar (en mayusculas):");
-				String infraccion = lector.next();
-						
-				Comparable[] buscados = modelo.busquedaLP(fecha, clase, infraccion);
-				
-				for(int i = 0; i< buscados.length ;i++)
-				{
-					Comparendo c = (Comparendo) buscados[i];
-					view.printMessage(c.datosCluster());
-				}
 					break;
 
 				case 3:
-					
-					view.printMessage("Ingrese la fecha que desea buscar (YYYY/mm/DD)");
-					String fecha2 = lector.next();
-					
-					view.printMessage("Ingrese la clase de vehiculo que desea buscar (en mayusculas):");
-					String clase2 = lector.next();
-					
-					view.printMessage("Ingrese la infraccion que desea buscar (en mayusculas):");
-					String infraccion2 = lector.next();
-							
-					Comparable[] buscados2 = modelo.busquedaLP(fecha2, clase2, infraccion2);
-					
-					for(int i = 0; i< buscados2.length ;i++)
-					{
-						Comparendo c = (Comparendo) buscados2[i];
-						view.printMessage(c.datosCluster());
-					}
+				
 					break;
 
 				case 4:
-					
-					view.printMessage(modelo.pruebaDesempeno());
-					
+							
 					break;
 					
 				case 5:

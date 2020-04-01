@@ -9,7 +9,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.*;
 
 import model.data_structures.*;
 
@@ -20,7 +20,6 @@ import model.data_structures.*;
 public class Modelo {
 
 
-
 	public static String PATH = "./data/Comparendos_DEI_2018_Bogota_D.C_small.geojson";
 	/**
 	 * Atributos del modelo del mundo
@@ -28,9 +27,7 @@ public class Modelo {
 
 	private Queue<Comparendo> datos;
 	
-	private LinearProbingHash<String, Comparendo> hashLP;
-
-	private SeparateChainingHash<String, Comparendo> hashSC;
+	
 
 	private static Comparable[] aux;
 
@@ -42,8 +39,7 @@ public class Modelo {
 	public Modelo()
 	{
 		datos = new Queue<Comparendo>();
-		hashLP = new LinearProbingHash<String, Comparendo>(7);
-		hashSC = new SeparateChainingHash<String, Comparendo>(7);
+		
 	}
 
 
@@ -52,9 +48,7 @@ public class Modelo {
 	public void cargarDatos() 
 
 	{
-		hashLP = new LinearProbingHash<String, Comparendo>(7);
-		hashSC = new SeparateChainingHash<String, Comparendo>(7);
-
+		
 		JsonReader reader;
 
 		try {
@@ -93,8 +87,7 @@ public class Modelo {
 				String key = c.darSimpleDate()+c.darClaseVehiculo()+c.darInfraccion();
 				
 				datos.enqueue(c);
-				hashLP.putInSet(key, c);
-				hashSC.putInSet(key, c);
+				
 
 
 			}
@@ -150,8 +143,6 @@ public class Modelo {
 				String key = c.darSimpleDate()+c.darClaseVehiculo()+c.darInfraccion();
 				
 				datos.enqueue(c);
-				hashLP.putInSet(key, c);
-				hashSC.putInSet(key, c);
 				
 
 			}
@@ -223,190 +214,7 @@ public class Modelo {
 
 	
 	
-	// Otros 
-	public int darTamanoLinearProbing()
-	{
-		return hashLP.darTamano();
-	}
-
-
-	public int darTamanoSeparateChaining()
-	{
-		return hashSC.darTamano();
-	}
-
-
-	public int darTotalDuplasLP()
-	{
-		return hashLP.darTotalDuplas();
-	}
-
-
-	public int darTotalDuplasSC()
-	{
-		return hashSC.darTotalDuplas();
-	}
-
-	public int darTotalRehashesLP()
-	{
-		return hashLP.darTotalRehashes();
-	}
-
-	public int darTotalRehashesSC()
-	{
-		return hashSC.darTotalRehashes();
-	}
-
-
-	//Requerimiento 1
-
-	public Comparable[] busquedaLP(String pFecha, String pClase, String pInfraccion)
-	{
-		String llave = pFecha+pClase+pInfraccion;
-
-		if(!hashLP.contains(llave))
-		{
-			return null;
-		}
-
-		Comparable[] aRetornar = copiarArreglo(hashLP.getSet(llave));
-		sort(aRetornar);
-
-		return aRetornar;
-	}
-
-
-
-	//Requerimiento 2 
-
-
-	public Comparable[] busquedaSC(String pFecha, String pClase, String pInfraccion)
-	{
-		String llave = pFecha+pClase+pInfraccion;
-
-		if(!hashSC.contains(llave))
-		{
-			return null;
-		}
-
-		Comparable[] aRetornar = copiarArreglo(hashSC.getSet(llave));
-		sort(aRetornar);
-		return aRetornar;
-	}
-
-
-
-// Requerimiento 3
 	
-	public String pruebaDesempeno()
-	{
-		long inicio = 0;
-		long fin = 0;
-		long duracion = 0;
-		
-		Queue<Comparendo> muestra = cargarMuestra(8000);
-		Comparendo[] muestraFinal = new Comparendo[10000] ;
-		long[] tiemposLP = new long[10000];
-		long[] tiemposSC = new long[10000];
-		
-		
-		for(int i = 0; i < muestraFinal.length; i++ )
-		{
-			if(i < 8000)
-			{
-				Node<Comparendo> actual = muestra.darPrimerNodo();
-				muestraFinal[i] = actual.darElemento();
-				actual = actual.darSiguiente();
-			}
-			
-			else
-			{
-				//TODO Crear comparendo aleatorio
-				Random generator = new Random();
-				int x = generator.nextInt(9);
-				String date = ""+2019+"/"+x+"/"+x;
-				Comparendo nuevo = new Comparendo(22222, date,"aaaaa" , "bicicleta", "particular", "C02", "colision", "Teusaquillo",74.08775699999995, 4.616270400000076, "Bogotá");
-				muestraFinal[i] = nuevo;
-
-			}
-		}
-		
-		
-		//Linear Probing
-		long minimoLP = 1000000000;
-		long maximoLP = 0;
-		long suma=0;
-		
-		for (int i = 0; i < tiemposLP.length; i++) 
-		{
-			inicio = System.currentTimeMillis();
-			String llave = muestraFinal[i].darSimpleDate()+muestraFinal[i].darClaseVehiculo()+muestraFinal[i].darInfraccion();
-			Queue<Comparendo> buscado = hashLP.getSet(llave);
-			fin = System.currentTimeMillis();
-			duracion = fin-inicio;
-			tiemposLP[i]=duracion;
-			
-			if(duracion>maximoLP)
-			{
-				maximoLP = duracion;
-			}
-			
-			else if(duracion<minimoLP)
-			{
-				duracion=minimoLP;
-			}
-			
-			suma+=duracion;
-		}
-		
-		long promedioLP = suma/tiemposLP.length;
-		
-		
-		//Separate Chaining
-		
-		long minimoSC = 1000000000;
-		long maximoSC = 0;
-		long sumaSC=0;
-		
-		for (int i = 0; i < tiemposLP.length; i++) 
-		{
-			inicio = System.currentTimeMillis();
-			String llave = muestraFinal[i].darSimpleDate()+muestraFinal[i].darClaseVehiculo()+muestraFinal[i].darInfraccion();
-			Queue<Comparendo> buscado = hashSC.getSet(llave);
-			fin = System.currentTimeMillis();
-			duracion = fin-inicio;
-			tiemposLP[i]=duracion;
-			
-			if(duracion>maximoLP)
-			{
-				maximoLP = duracion;
-			}
-			
-			else if(duracion<minimoLP)
-			{
-				duracion=minimoLP;
-			}
-			
-			sumaSC+=duracion;
-		}
-		
-		
-		long promedioSC = suma/tiemposSC.length;
-		
-		
-		//Tabla
-		String respuesta =  "Tiempo minimo get(...)" + "   LP: " + minimoLP + "   SC: " + minimoSC + 
-				"\n Tiempo maximo get(...)" + "   LP: " + maximoLP + "   SC: " + maximoSC + 
-				"\n Tiempo promedio get(...)" + "   LP: " + promedioLP + "   SC: " + promedioSC; 
-		
-		return respuesta;
-		
-	}
-
-
-
-
-
 
 
 

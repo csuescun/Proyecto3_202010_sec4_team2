@@ -2,7 +2,7 @@ package model.data_structures;
 
 import java.util.Iterator;
 
-public class LinearProbingHash<Key,Value>  {
+public class LinearProbingHash<Key extends Comparable<Key>,Value extends Comparable <Value>> implements IHash<Key, Value> {
 
 	private int m;//tamano de la tabla
 	private int n;//numero de elementos
@@ -161,6 +161,22 @@ public class LinearProbingHash<Key,Value>  {
 		
 		m    = temp.m;
 		numRehashes ++;
+	}
+
+
+
+	public Iterator<Key> keys() 
+	{
+		Queue<Key> llaves = new Queue<Key>();
+		
+		for(Key key: keys)
+		{
+			llaves.enqueue(key);
+		}
+		
+		return llaves.iterator();
+		
+		
 	}
 
 
