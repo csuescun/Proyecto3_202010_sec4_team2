@@ -34,6 +34,11 @@ public class SeparateChainingHash<Key extends Comparable<Key>,Value extends Comp
 			values = pValues;
 			siguiente = pSiguiente;
 		}
+		
+		private void cambiarSiguiente(NodoHash nuevo)
+		{
+			siguiente = nuevo;
+		}
 
 	}
 
@@ -168,23 +173,33 @@ public class SeparateChainingHash<Key extends Comparable<Key>,Value extends Comp
 		if(!contains(key)) return null; 
 
 		int i = hash(key);
-		Iterator<Value> aDevolver = null; 
+		Queue<Value >aDevolver = new Queue<Value>(); 
 		NodoHash actual = st[i];
 
-		while(actual != null)
+		if(actual.key.equals(key))
 		{
-			if(key.equals(actual.key))
-			{
-
-				actual = actual.siguiente;
-				aDevolver = actual.values.iterator();
-				n--;
-			}
+			st[i] = actual.siguiente;
+			m--;
+			aDevolver = actual.values; 
+			
 		}
+		
+		while(actual.siguiente != null)
+		{
+			if(key.equals(actual.siguiente.key))
+			{
+				aDevolver  = actual.siguiente.values;
+				actual.cambiarSiguiente(actual.siguiente.siguiente);
+				m--;
+			}
+			
+			actual = actual.siguiente;
+		}
+		
 
 		if ( n/m <= 5) resize(m/2);
 
-		return aDevolver;
+		return aDevolver.iterator();
 	} 
 
 

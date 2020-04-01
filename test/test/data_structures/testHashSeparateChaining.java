@@ -72,7 +72,12 @@ public class testHashSeparateChaining
 	public void testDeleteSet()
 	{
 		Iterator<String> bla = hashSC.deleteSet("1");
+		assertEquals("El valor no es el esperado", "H", bla.next());
 		assertTrue(!hashSC.contains("1"));
+		
+		Iterator<String> bla2 = hashSC.deleteSet("4");
+		assertEquals("El valor no es el esperado", "A", bla2.next());
+		assertTrue(!hashSC.contains("4"));
 	}
 	
 	@Test 
