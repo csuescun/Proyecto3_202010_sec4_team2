@@ -21,18 +21,30 @@ public class Modelo {
 
 
 	public static String PATH = "./data/Comparendos_DEI_2018_Bogota_D.C_small.geojson";
+
 	/**
 	 * Atributos del modelo del mundo
 	 */
 
-	private Queue<Comparendo> datos;
-	
+	//ESTRUCTURAS DE DATOS
 
+	private Queue<Comparendo> datos;
+
+	private MaxHeapCP<Comparendo> maxHeap;
+
+	private LinearProbingHash<String, Comparendo> hashLP;
+
+	private SeparateChainingHash<String, Comparendo> hashSC;
+
+	private RedBlackBST<String, Comparendo> arbolRN;
+
+
+	//ADICIONALES
 	private static Comparable[] aux;
 
-	
 	private Comparendo mayorComparendo;
-	
+
+
 	/**
 	 * Constructor del modelo del mundo con capacidad predefinida
 	 */
@@ -40,22 +52,25 @@ public class Modelo {
 	public Modelo()
 	{
 		datos = new Queue<Comparendo>();
-		
+		maxHeap = new MaxHeapCP<Comparendo>();
+		hashLP = new LinearProbingHash<String, Comparendo>(7);
+		hashSC = new SeparateChainingHash<String, Comparendo>(7);
+		arbolRN = new RedBlackBST<String, Comparendo>();
 	}
 
 
 	//Iniciales
-	
+
 	public void cargarDatos() 
 
 	{
-		
-		
+
+
 		JsonReader reader;
 
 		try {
 
-			
+
 			int mayorID  = 0;
 			reader = new JsonReader(new FileReader( PATH));
 			JsonParser jsonp = new JsonParser();
@@ -88,9 +103,11 @@ public class Modelo {
 
 				Comparendo c = new Comparendo(OBJECTID, FECHA_HORA, MEDIO_DETE, CLASE_VEHI, TIPO_SERVI, INFRACCION,DES_INFRAC, LOCALIDAD, longitud, latitud, MUNICIPIO);
 				String key = c.darSimpleDate()+c.darClaseVehiculo()+c.darInfraccion();
-				
+
+
+				//Faltan las otras estructuras
 				datos.enqueue(c);
-				
+
 				if(OBJECTID > mayorID)
 				{
 					mayorComparendo = c;
@@ -99,15 +116,15 @@ public class Modelo {
 			}
 
 		} 
-	
+
 
 		catch (FileNotFoundException e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 
 	public void cargarDatosSmall() 
 
@@ -130,7 +147,7 @@ public class Modelo {
 				int OBJECTID = e.getAsJsonObject().get("properties").getAsJsonObject().get("OBJECTID").getAsInt();
 
 				String FECHA_HORA = e.getAsJsonObject().get("properties").getAsJsonObject().get("FECHA_HORA").getAsString();	
-				
+
 
 				String MEDIO_DETE = e.getAsJsonObject().get("properties").getAsJsonObject().get("MEDIO_DETE").getAsString();
 				String CLASE_VEHI = e.getAsJsonObject().get("properties").getAsJsonObject().get("CLASE_VEHI").getAsString();
@@ -147,9 +164,9 @@ public class Modelo {
 
 				Comparendo c = new Comparendo(OBJECTID, FECHA_HORA, MEDIO_DETE, CLASE_VEHI, TIPO_SERVI, INFRACCION,DES_INFRAC, LOCALIDAD, longitud, latitud,"");
 				String key = c.darSimpleDate()+c.darClaseVehiculo()+c.darInfraccion();
-				
+
 				datos.enqueue(c);
-				
+
 
 			}
 
@@ -173,7 +190,7 @@ public class Modelo {
 		return comparendos;
 	}
 
-	
+
 	public Comparendo[] copiarDatos()
 	{
 		Comparendo[] comparendos = new Comparendo[datos.darTamano()];
@@ -186,7 +203,7 @@ public class Modelo {
 		return comparendos;
 	}
 
-	
+
 	public Queue<Comparendo> cargarMuestra(int N)
 	{
 		Queue<Comparendo> aRetornar = new Queue<Comparendo>();
@@ -201,13 +218,13 @@ public class Modelo {
 		return aRetornar;
 	}
 
-	
+
 	public int darTamano()
 	{
 		return datos.darTamano();
 	}
 
-	
+
 	public Comparendo darPrimeroCola()
 	{
 		return datos.darPrimerElemento();
@@ -218,12 +235,68 @@ public class Modelo {
 		return datos.darUltimoElemento();
 	}
 
-	
-	
-	
 
+	public Comparendo darMayorComparendo()
+	{
+		return mayorComparendo;
+	}
 
+	//REQUERIMIENTOS FUNCIONALES
 
+	//A1
+	public MaxHeapCP<Comparendo> darMComparendosMasGraves(int M)
+	{
+		return null;
+	}
+
+	//A2
+	public Queue<Comparendo> buscarComparendosMesDia(int mes, String dia)
+	{
+		return null;
+	}
+
+	//A3
+	public void buscarRangoFHLocalidad(String fechas, String localidad)
+	{
+
+	}
+
+	//B1
+	public MaxHeapCP<Comparendo> darMComparendosMasCercanos(int M)
+	{
+		return null;
+	}
+
+	//B2
+	public void buscarComparendosCaracteristicas(String medio_dete, String clase, String tipo, String localidad)
+	{
+
+	}
+
+	//B3
+
+	public void buscarRangosLatitudTipo(String latitudes, String tipo)
+	{
+
+	}
+
+	//C1
+	public void tablaASCII(int dias)
+	{
+
+	}
+
+	//C2
+	public void tiemposDeEspera()
+	{
+
+	}
+
+	//C3
+	public void tiemposNuevoSistema()
+	{
+
+	}
 
 
 
@@ -237,7 +310,7 @@ public class Modelo {
 		return a.compareTo(b)<0;
 	}
 
-	
+
 	public void shellSortPorFecha(Comparable[] a)
 	{
 		int N = a.length;
@@ -253,7 +326,7 @@ public class Modelo {
 		}
 
 	}
-	
+
 	public static void exch(Comparable[] a, int i, int j)
 	{
 		Comparable temporal = a[i];
@@ -261,7 +334,7 @@ public class Modelo {
 		a[j] = temporal;		
 	}
 
-	
+
 	public void  shuffle(Comparendo[] total)
 	{
 		Random rnd = ThreadLocalRandom.current();

@@ -48,10 +48,9 @@ public class Controller {
 										
 				view.printMessage("Datos de comparendos cargados.");
 				view.printMessage("Numero total de comparendos " + modelo.darTamano() + "\n---------");		
-				view.printMessage("Tiempo de carga (seg): " + (end-start)/1000.0);
-				
-				view.printMessage("Primer comparendo: " + modelo.darPrimeroCola() + "\n");
-				view.printMessage("Ultimo comparendo: "+modelo.darUltimoCola()+"\n");
+				view.printMessage("Tiempo de carga (seg): " + (end-start)/1000.0 + "\n---------");
+				view.printMessage("El comparendo con mayor OBJECTID es:");
+				view.printMessage(modelo.darMayorComparendo().datosCluster() + "\n--------");
 				
 				
 				break;				
@@ -70,6 +69,30 @@ public class Controller {
 					break;
 					
 				case 5:
+					
+					break;
+					
+				case 6:
+					
+					break;
+					
+				case 7: 
+					
+					break;
+					
+				case 8:
+					
+					break;
+					
+				case 9: 
+					
+					break;
+					
+				case 10:
+					
+					break;
+					
+				case 11:
 		
 					view.printMessage("--------- \n Hasta pronto !! \n---------"); 
 					lector.close();
