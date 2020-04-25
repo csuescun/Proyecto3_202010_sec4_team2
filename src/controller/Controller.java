@@ -102,7 +102,7 @@ public class Controller {
 
 				Comparable[] buscados = modelo.buscarComparendosCaracteristicas(medio, clase, tipo, localidad);
 
-				int maximo = Math.max(N_MAX, buscados.length);
+				int maximo = Math.min(N_MAX, buscados.length);
 
 				for(int i =0; i<maximo; i++)
 				{
@@ -125,7 +125,7 @@ public class Controller {
 
 				Comparable[] losBuscados = modelo.copiarArreglo(modelo.buscarRangosLatitudTipo(lat_min, lat_max, tipov));
 
-				int maxi = Math.max(N_MAX, losBuscados.length);
+				int maxi = Math.min(N_MAX, losBuscados.length);
 
 				for(int i =0; i<maxi; i++)
 				{
