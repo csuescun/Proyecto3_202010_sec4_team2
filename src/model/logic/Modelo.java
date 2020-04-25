@@ -271,7 +271,7 @@ public class Modelo {
 	}
 
 	//B1
-	public Queue<Comparendo> darMComparendosMasCercanos(int M)
+	public Comparable[] darMComparendosMasCercanos(int M)
 	{
 		Queue<Comparendo> aRetornar = new Queue<Comparendo>();
 		
@@ -281,7 +281,7 @@ public class Modelo {
 			M--;
 		}
 		
-		return aRetornar;
+		return copiarArreglo(aRetornar);
 	}
 
 	//B2
