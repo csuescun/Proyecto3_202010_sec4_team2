@@ -23,7 +23,7 @@ public class Modelo {
 
 	public static String PATH = "./data/Comparendos_DEI_2018_Bogotá_D.C.geojson";
 
-	public static int Nmax = 20;
+	public static final int MAX_REVISION = 1500;
 	/**
 	 * Atributos del modelo del mundo
 	 */
