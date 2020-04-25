@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -20,7 +21,7 @@ import model.data_structures.*;
 public class Modelo {
 
 
-	public static String PATH = "./data/Comparendos_DEI_2018_Bogota_D.C_small.geojson";
+	public static String PATH = "./data/Comparendos_DEI_2018_Bogotá_D.C.geojson";
 
 	public static int Nmax = 20;
 	/**
@@ -32,8 +33,6 @@ public class Modelo {
 	private Queue<Comparendo> datos;
 
 	private MaxHeapCP<Comparendo> maxHeapCecilia;
-
-	private LinearProbingHash<String, Comparendo> hashLP;
 
 	private SeparateChainingHash<String, Comparendo> hashSC_Cecilia;
 
@@ -56,7 +55,6 @@ public class Modelo {
 	{
 		datos = new Queue<Comparendo>();
 		maxHeapCecilia = new MaxHeapCP<Comparendo>(new ComparadorDistancias());
-		hashLP = new LinearProbingHash<String, Comparendo>(7);
 		hashSC_Cecilia = new SeparateChainingHash<String, Comparendo>(7);
 		arbolRN_Cecilia = new RedBlackBST<Double, Comparendo>();
 	}
@@ -116,6 +114,8 @@ public class Modelo {
 				
 				String llaveCecilia = MEDIO_DETE+"_"+CLASE_VEHI+"_"+TIPO_SERVI+"_"+LOCALIDAD;
 				hashSC_Cecilia.putInSet(llaveCecilia, c);
+				
+				arbolRN_Cecilia.put(latitud, c);
 
 				if(OBJECTID > mayorID)
 				{
@@ -298,8 +298,23 @@ public class Modelo {
 
 	//B3
 
-	public void buscarRangosLatitudTipo(String latitudes, String tipo)
+	public Queue<Comparendo> buscarRangosLatitudTipo(double latitud1, double latitud2, String tipo)
 	{
+		Iterator<Comparendo> buscados = arbolRN_Cecilia.valuesInRange(latitud1, latitud2);
+		Queue<Comparendo> aRetornar  = new Queue<Comparendo>();
+		
+		while(buscados.hasNext())
+		{
+			Comparendo agregado = buscados.next();
+			
+			if(agregado.darTipoServicio().equals(tipo))
+			{
+				aRetornar.enqueue(agregado);
+			}
+			
+		}
+		
+		return aRetornar;
 		
 	}
 
