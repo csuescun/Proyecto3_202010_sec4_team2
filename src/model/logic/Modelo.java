@@ -22,6 +22,7 @@ public class Modelo {
 
 	public static String PATH = "./data/Comparendos_DEI_2018_Bogota_D.C_small.geojson";
 
+	public static int Nmax = 20;
 	/**
 	 * Atributos del modelo del mundo
 	 */
@@ -30,13 +31,15 @@ public class Modelo {
 
 	private Queue<Comparendo> datos;
 
-	private MaxHeapCP<Comparendo> maxHeap;
+	private MaxHeapCP<Comparendo> maxHeapCecilia;
 
 	private LinearProbingHash<String, Comparendo> hashLP;
 
-	private SeparateChainingHash<String, Comparendo> hashSC;
+	private SeparateChainingHash<String, Comparendo> hashSC_Cecilia;
 
-	private RedBlackBST<String, Comparendo> arbolRN;
+	private RedBlackBST<Double, Comparendo> arbolRN_Cecilia;
+	
+
 
 
 	//ADICIONALES
@@ -52,10 +55,10 @@ public class Modelo {
 	public Modelo()
 	{
 		datos = new Queue<Comparendo>();
-		maxHeap = new MaxHeapCP<Comparendo>();
+		maxHeapCecilia = new MaxHeapCP<Comparendo>(new ComparadorDistancias());
 		hashLP = new LinearProbingHash<String, Comparendo>(7);
-		hashSC = new SeparateChainingHash<String, Comparendo>(7);
-		arbolRN = new RedBlackBST<String, Comparendo>();
+		hashSC_Cecilia = new SeparateChainingHash<String, Comparendo>(7);
+		arbolRN_Cecilia = new RedBlackBST<Double, Comparendo>();
 	}
 
 
@@ -107,6 +110,12 @@ public class Modelo {
 
 				//Faltan las otras estructuras
 				datos.enqueue(c);
+				
+				// Requerimientos B:
+				maxHeapCecilia.agregar(c);
+				
+				String llaveCecilia = MEDIO_DETE+"_"+CLASE_VEHI+"_"+TIPO_SERVI+"_"+LOCALIDAD;
+				hashSC_Cecilia.putInSet(llaveCecilia, c);
 
 				if(OBJECTID > mayorID)
 				{
@@ -262,22 +271,36 @@ public class Modelo {
 	}
 
 	//B1
-	public MaxHeapCP<Comparendo> darMComparendosMasCercanos(int M)
+	public Queue<Comparendo> darMComparendosMasCercanos(int M)
 	{
-		return null;
+		Queue<Comparendo> aRetornar = new Queue<Comparendo>();
+		
+		while(M > 0)
+		{
+			aRetornar.enqueue(maxHeapCecilia.sacarMax());
+			M--;
+		}
+		
+		return aRetornar;
 	}
 
 	//B2
-	public void buscarComparendosCaracteristicas(String medio_dete, String clase, String tipo, String localidad)
+	public Comparable[] buscarComparendosCaracteristicas(String medio_dete, String clase, String tipo, String localidad)
 	{
-
+		String llave = medio_dete + "_" + clase + "_" + tipo + "_" + localidad;
+		
+		Comparable[] respuesta  = copiarArreglo(hashSC_Cecilia.getSet(llave));
+		shellSortPorFecha(respuesta);
+		
+		return respuesta;
+		
 	}
 
 	//B3
 
 	public void buscarRangosLatitudTipo(String latitudes, String tipo)
 	{
-
+		
 	}
 
 	//C1

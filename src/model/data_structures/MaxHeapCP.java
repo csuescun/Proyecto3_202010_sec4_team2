@@ -1,23 +1,29 @@
 package model.data_structures;
 
+import java.util.Comparator;
+
 public class MaxHeapCP <T extends Comparable<T>> 
 {
+
 	private T[] elementosHeap;
-	
+
 	private int tamanoMaximo;
 
 	private int tamano;
-
 	
-	public MaxHeapCP()
+	private Comparator<T> comparador;
+
+
+	public MaxHeapCP(Comparator<T> pComparador)
 	{
-		
+
 		tamanoMaximo = 10;
-		
+
 		elementosHeap = (T[]) new Comparable[tamanoMaximo+1];
-		
+
 		tamano = 0 ;
 
+		comparador = pComparador;
 
 	}
 
@@ -87,13 +93,13 @@ public class MaxHeapCP <T extends Comparable<T>>
 		while (2*k <= tamano)
 		{
 			int j = 2*k;
-			
+
 			if (j < tamano && less(j, j+1))
 				j++;
-			
+
 			if (!less(k, j))
 				break;
-			
+
 			exch(k, j);
 			k = j;
 		}
@@ -102,7 +108,8 @@ public class MaxHeapCP <T extends Comparable<T>>
 
 	private boolean less (int i, int j)
 	{
-		return elementosHeap[i].compareTo(elementosHeap[j]) < 0;
+		return comparador.compare(elementosHeap[i], elementosHeap[j]) < 0;
+
 	}
 
 
@@ -112,6 +119,8 @@ public class MaxHeapCP <T extends Comparable<T>>
 		elementosHeap[i] = elementosHeap[j];
 		elementosHeap[j] = t;
 	}
+
+
 
 
 }

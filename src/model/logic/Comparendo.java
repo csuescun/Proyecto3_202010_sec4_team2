@@ -156,6 +156,11 @@ public class Comparendo implements Comparable<Comparendo> {
 		return latitud;
 	}
 	
+	public double darLongitud()
+	{
+		return longitud;
+	}
+	
 	public String darSimpleDate()
 	{
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");  
