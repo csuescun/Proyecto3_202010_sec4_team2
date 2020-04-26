@@ -134,6 +134,7 @@ public class Modelo {
 				String llaveDia = c.darMes()+c.darDia();
 				hash_dia.putInSet(llaveDia, c);
 
+				arbolRN_fecha.put(c.darFecha(),c);
 				arbolRN_Cecilia.put(latitud, c);
 
 
@@ -360,8 +361,6 @@ public class Modelo {
 	public void tablaASCII(int dias)
 	{
 
-		Comparendo[] datos = copiarDatos();
-		shellSortPorFecha(datos);
 
 		Date inicio = darFechaEnFormato("2018/01/01");
 
@@ -370,13 +369,13 @@ public class Modelo {
 		c1.add(Calendar.DATE, dias-1);
 		Date fin =  c1.getTime();
 
-		String[] asteriscos = comparendosEntreDosFechas(datos, inicio, fin, dias);
+		String[] asteriscos = comparendosEntreDosFechas(arbolRN_fecha, inicio, fin, dias);
 
 		System.out.println(asteriscos.length);
 
 		System.out.println("Total de comparendos: " + darTamano());
 
-		System.out.println("Rango de fechas \t\t\t|   Comparendos durante el año");
+		System.out.println("Rango de fechas\t\t\t\t|Comparendos durante el año");
 		System.out.println("-------------------------------------------------------");
 
 		String fecha = darSimpleDate(inicio) + " - " + darSimpleDate(fin);	
@@ -407,7 +406,7 @@ public class Modelo {
 	}
 
 
-	public String[] comparendosEntreDosFechas(Comparendo[] comparendos, Date inicio, Date fin, int rango)
+	public String[] comparendosEntreDosFechas(RedBlackBST<Date, Comparendo> comparendos, Date inicio, Date fin, int rango)
 	{
 
 
@@ -420,14 +419,14 @@ public class Modelo {
 		for(int k= 0; k < totalFechas; k++)
 		{
 
-			for(int j = 0; j< comparendos.length; j++)
+			Iterator<Comparendo> iterator = comparendos.valuesInRange(inicio, fin);
+
+			while(iterator.hasNext())
 			{
-				if(comparendos[j].darFecha().after(inicio) && comparendos[j].darFecha().before(fin))
-				{
-					totalComparendos++;
-				}
+				totalComparendos++;
 
 			}
+
 
 			totales[k] = totalComparendos;
 
