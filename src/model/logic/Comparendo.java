@@ -167,6 +167,17 @@ public class Comparendo implements Comparable<Comparendo> {
 	    String strDate= formatter.format(fecha);
 	    return strDate;
 	}
+	
+	public String darDia()
+	{
+		int d = fecha.getDay();
+		
+		return d==0?"D":d==1?"L":d==2?"M":d==3?"I":d==4?"J":d==5?"V":"S";
+	}
+	public int darMes()
+	{
+		return fecha.getMonth();
+	}
 
 	@Override
 	public String toString() {

@@ -37,13 +37,19 @@ public class Modelo {
 
 	private Queue<Comparendo> datos;
 
-	private MaxHeapCP<Comparendo> maxHeapCecilia;
+	private MaxHeapCP<Comparendo> maxHeapCecilia,maxHeapGravedad;
 
-	private SeparateChainingHash<String, Comparendo> hashSC_Cecilia;
+	private SeparateChainingHash<String, Comparendo> hashSC_Cecilia,hash_dia;
 
 	private RedBlackBST<Double, Comparendo> arbolRN_Cecilia;
+<<<<<<< HEAD
 
 
+=======
+	
+	private RedBlackBST<Date, Comparendo> arbolRN_fecha;
+	
+>>>>>>> 00b6421ca798457f8a519bb8973f88a3f187078f
 
 
 
@@ -61,8 +67,11 @@ public class Modelo {
 	{
 		datos = new Queue<Comparendo>();
 		maxHeapCecilia = new MaxHeapCP<Comparendo>(new ComparadorDistancias());
+		maxHeapGravedad = new MaxHeapCP<Comparendo>(new Gravedad());
 		hashSC_Cecilia = new SeparateChainingHash<String, Comparendo>(7);
+		hash_dia = new SeparateChainingHash<String,Comparendo>(7);
 		arbolRN_Cecilia = new RedBlackBST<Double, Comparendo>();
+		arbolRN_fecha = new RedBlackBST<Date,Comparendo>();
 	}
 
 
@@ -117,11 +126,23 @@ public class Modelo {
 
 				// Requerimientos B:
 				maxHeapCecilia.agregar(c);
+<<<<<<< HEAD
 
 				String llaveCecilia = MEDIO_DETE+"_"+CLASE_VEHI+"_"+TIPO_SERVI+"_"+LOCALIDAD;
 				hashSC_Cecilia.putInSet(llaveCecilia, c);
 
+=======
+				maxHeapGravedad.agregar(c);
+				
+				String llaveCecilia = MEDIO_DETE+"_"+CLASE_VEHI+"_"+TIPO_SERVI+"_"+LOCALIDAD;
+				hashSC_Cecilia.putInSet(llaveCecilia, c);
+				
+				String llaveDia = c.darMes()+c.darDia();
+				hash_dia.putInSet(llaveDia, c);
+				
+>>>>>>> 00b6421ca798457f8a519bb8973f88a3f187078f
 				arbolRN_Cecilia.put(latitud, c);
+				
 
 				if(OBJECTID > mayorID)
 				{
@@ -259,21 +280,39 @@ public class Modelo {
 	//REQUERIMIENTOS FUNCIONALES
 
 	//A1
-	public MaxHeapCP<Comparendo> darMComparendosMasGraves(int M)
+	public Comparable[] darMComparendosMasGraves(int M)
 	{
-		return null;
+		Queue<Comparendo> aRetornar = new Queue<Comparendo>();
+		
+		while(M > 0)
+		{
+			aRetornar.enqueue(maxHeapGravedad.sacarMax());
+			M--;
+		}
+		
+		return copiarArreglo(aRetornar);
 	}
 
 	//A2
-	public Queue<Comparendo> buscarComparendosMesDia(int mes, String dia)
+	public Comparable[] buscarComparendosMesDia(int mes, String dia)
 	{
-		return null;
+		String llave = mes+dia;
+		return copiarArreglo(hash_dia.getSet(llave));
+		
 	}
 
 	//A3
-	public void buscarRangoFHLocalidad(String fechas, String localidad)
+	public void buscarRangoFHLocalidad(Date f1,Date f2, String localidad)
 	{
-
+		for(Comparendo e: datos)
+		{
+			if(e.darLocalidad().equals(localidad))
+			{
+				arbolRN_fecha.put(e.darFecha(), e);
+			}
+		}
+		
+		arbolRN_fecha.valuesInRange(f1, f2);
 	}
 
 	//B1
