@@ -423,6 +423,7 @@ public class Modelo {
 
 			while(iterator.hasNext())
 			{
+				Comparendo actual = iterator.next();
 				totalComparendos++;
 
 			}
