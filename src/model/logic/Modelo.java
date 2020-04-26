@@ -4,10 +4,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 import com.google.gson.*;
 import com.google.gson.stream.*;
@@ -37,7 +42,8 @@ public class Modelo {
 	private SeparateChainingHash<String, Comparendo> hashSC_Cecilia;
 
 	private RedBlackBST<Double, Comparendo> arbolRN_Cecilia;
-	
+
+
 
 
 
@@ -108,13 +114,13 @@ public class Modelo {
 
 				//Faltan las otras estructuras
 				datos.enqueue(c);
-				
+
 				// Requerimientos B:
 				maxHeapCecilia.agregar(c);
-				
+
 				String llaveCecilia = MEDIO_DETE+"_"+CLASE_VEHI+"_"+TIPO_SERVI+"_"+LOCALIDAD;
 				hashSC_Cecilia.putInSet(llaveCecilia, c);
-				
+
 				arbolRN_Cecilia.put(latitud, c);
 
 				if(OBJECTID > mayorID)
@@ -274,13 +280,13 @@ public class Modelo {
 	public Comparable[] darMComparendosMasCercanos(int M)
 	{
 		Queue<Comparendo> aRetornar = new Queue<Comparendo>();
-		
+
 		while(M > 0)
 		{
 			aRetornar.enqueue(maxHeapCecilia.sacarMax());
 			M--;
 		}
-		
+
 		return copiarArreglo(aRetornar);
 	}
 
@@ -288,12 +294,12 @@ public class Modelo {
 	public Comparable[] buscarComparendosCaracteristicas(String medio_dete, String clase, String tipo, String localidad)
 	{
 		String llave = medio_dete + "_" + clase + "_" + tipo + "_" + localidad;
-		
+
 		Comparable[] respuesta  = copiarArreglo(hashSC_Cecilia.getSet(llave));
 		shellSortPorFecha(respuesta);
-		
+
 		return respuesta;
-		
+
 	}
 
 	//B3
@@ -302,41 +308,180 @@ public class Modelo {
 	{
 		Iterator<Comparendo> buscados = arbolRN_Cecilia.valuesInRange(latitud1, latitud2);
 		Queue<Comparendo> aRetornar  = new Queue<Comparendo>();
-		
+
 		while(buscados.hasNext())
 		{
 			Comparendo agregado = buscados.next();
-			
+
 			if(agregado.darTipoServicio().equals(tipo))
 			{
 				aRetornar.enqueue(agregado);
 			}
-			
+
 		}
-		
+
 		return aRetornar;
-		
+
 	}
 
 	//C1
 	public void tablaASCII(int dias)
 	{
 
+		Comparendo[] datos = copiarDatos();
+		shellSortPorFecha(datos);
+		ArrayList<String> fechas = todasLasFechas(); 
+
+		System.out.println("Total de comparendos: " + darTamano());
+
+		System.out.println("Rango de fechas          |   Comparendos durante el año");
+		System.out.println("-------------------------------------------------------");
+
+		int i = 0;
+
+
+
 	}
 
 	//C2
-	public void tiemposDeEspera()
+	public void costosDeEspera()
 	{
-
+		
 	}
 
 	//C3
-	public void tiemposNuevoSistema()
+	public void costosNuevoSistema()
 	{
 
 	}
 
 
+	//OTROS METODOS NECESARIOS
+
+	public RedBlackBST<Date, Comparendo> comparendosaArbolRN()
+	{
+		RedBlackBST<Date, Comparendo> respuesta = new RedBlackBST<Date, Comparendo>();
+		Iterator<Comparendo> comparendos = datos.iterator();
+
+		while(comparendos.hasNext())
+		{
+			Comparendo actual = comparendos.next();
+			respuesta.put(actual.darFecha(), actual);
+		}
+
+		return respuesta;
+	}
+
+	public LinearProbingHash<Date, Comparendo> comparendosAHashLP()
+	{
+		LinearProbingHash<Date, Comparendo> tabla = new LinearProbingHash<Date, Comparendo>(7);
+		Iterator<Comparendo> comparendos = datos.iterator();
+
+		while(comparendos.hasNext())
+		{
+			Comparendo actual = comparendos.next();
+			tabla.putInSet(actual.darFecha(), actual);
+		}
+
+		return tabla;
+
+
+	}
+
+
+	public String ponerAsteriscos(int total, int cantidad)
+	{
+		String respuesta = "";
+		int numero = (cantidad/total)+1;
+
+		int i = 0;
+		while(i< numero)
+		{
+			respuesta += "*";
+		}
+
+		return respuesta;
+	}
+
+	public String darAsteriscosCostos(int n)
+	{
+		String asteriscos = "";
+
+		int numeroTotal = n/100;
+		int i = 0;
+		while(i< numeroTotal)
+		{
+			asteriscos = asteriscos + "*";
+		}
+
+		return asteriscos;
+
+	}
+
+	public String darNumeralesCostos(int n)
+	{
+		String numerales = "";
+
+		int numeroTotal = n/100;
+		int i = 0;
+		while(i< numeroTotal)
+		{
+			numerales = numerales + "#";
+		}
+
+		return numerales;
+
+	}
+
+	public Date darFechaEnFormato(String fecha)
+	{
+		try
+		{
+			SimpleDateFormat parser = new SimpleDateFormat("yyyy/MM/dd");
+			Date respuesta = parser.parse(fecha); 
+
+			return respuesta;
+		}
+
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return null;
+		}
+
+	}
+
+	public String darSimpleDate(Date fecha)
+	{
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");  
+		String strDate= formatter.format(fecha);
+		return strDate;
+	}
+
+	public ArrayList<String> todasLasFechas()
+	{
+		Comparendo[] datos = copiarDatos();
+		shellSortPorFecha(datos);
+
+		ArrayList<String> totalfechas = new ArrayList<String>();
+
+		String  fecha = "";
+		int i = 0;
+
+		while(i < datos.length)
+		{
+			String actual = datos[i].darSimpleDate();
+
+			if(!actual.equals(fecha))
+			{
+				totalfechas.add(actual);
+				fecha = actual; 
+			}
+		}
+
+		return totalfechas;
+	}
 
 	// ORDENAMIENTOS
 

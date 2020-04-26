@@ -1,6 +1,8 @@
 package controller;
 
 import model.data_structures.Queue;
+
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import model.logic.Comparendo;
@@ -137,9 +139,18 @@ public class Controller {
 
 			case 8:
 
+				view.printMessage("Ingrese el rango de días que desea buscar");
+				int num = lector.nextInt();
+
+				modelo.tablaASCII(num);
+
+
+
 				break;
 
 			case 9: 
+				
+				modelo.costosDeEspera();
 
 				break;
 
