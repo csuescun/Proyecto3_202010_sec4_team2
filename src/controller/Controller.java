@@ -2,12 +2,9 @@ package controller;
 
 import model.data_structures.Queue;
 
-<<<<<<< HEAD
 import java.util.ArrayList;
-=======
 import java.text.SimpleDateFormat;
 import java.util.Date;
->>>>>>> 00b6421ca798457f8a519bb8973f88a3f187078f
 import java.util.Scanner;
 
 import model.logic.Comparendo;
@@ -67,21 +64,21 @@ public class Controller {
 
 
 			case 2:
-			
+
 				view.printMessage("Digite la cantidad de comparendos que quiere buscar");
 				int num = Integer.parseInt(lector.next());
-				
+
 				Comparable [] graves = modelo.darMComparendosMasGraves(num);
 				for(int i = 0;i<graves.length;i++)
 				{
 					Comparendo actual = (Comparendo)graves[i];
 					view.printMessage(actual.datosCluster3());
 				}
-				
+
 				break;
 
 			case 3:
-				view.printMessage("Ingrese un mes del año en forma numerica");
+				view.printMessage("Ingrese un mes del aï¿½o en forma numerica");
 				int mes = Integer.parseInt(lector.next());
 				view.printMessage("Ingrese un dia de la semana utilizando la primera letra");
 				String dia = lector.next();
@@ -91,22 +88,22 @@ public class Controller {
 					Comparendo actual = (Comparendo)busc[i];
 					view.printMessage(actual.datosCluster3());
 				}
-				
+
 				break;
 
 			case 4:
 				try{
-				SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-				view.printMessage("Escriba una fecha");
-				String a = lector.next();
-				Date f1 = formatter.parse(a);
-				view.printMessage("Escriba otra fecha");
-				String b = lector.next();
-				Date f2 = formatter.parse(b);
-				view.printMessage("Ingrese una localidad");
-				String local = lector.next();
-						
-				modelo.buscarRangoFHLocalidad(f1, f2, local);
+					SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+					view.printMessage("Escriba una fecha");
+					String a = lector.next();
+					Date f1 = formatter.parse(a);
+					view.printMessage("Escriba otra fecha");
+					String b = lector.next();
+					Date f2 = formatter.parse(b);
+					view.printMessage("Ingrese una localidad");
+					String local = lector.next();
+
+					modelo.buscarRangoFHLocalidad(f1, f2, local);
 				}
 				catch(Exception e)
 				{
@@ -182,16 +179,13 @@ public class Controller {
 			case 8:
 
 				view.printMessage("Ingrese el rango de dÃ­as que desea buscar");
-				int num = lector.nextInt();
-
-				modelo.tablaASCII(num);
-
-
+				int dias = lector.nextInt();
+				modelo.tablaASCII(dias);
 
 				break;
 
 			case 9: 
-				
+
 				modelo.costosDeEspera();
 
 				break;

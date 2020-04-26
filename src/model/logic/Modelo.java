@@ -42,14 +42,11 @@ public class Modelo {
 	private SeparateChainingHash<String, Comparendo> hashSC_Cecilia,hash_dia;
 
 	private RedBlackBST<Double, Comparendo> arbolRN_Cecilia;
-<<<<<<< HEAD
 
 
-=======
-	
+
 	private RedBlackBST<Date, Comparendo> arbolRN_fecha;
-	
->>>>>>> 00b6421ca798457f8a519bb8973f88a3f187078f
+
 
 
 
@@ -126,23 +123,19 @@ public class Modelo {
 
 				// Requerimientos B:
 				maxHeapCecilia.agregar(c);
-<<<<<<< HEAD
 
 				String llaveCecilia = MEDIO_DETE+"_"+CLASE_VEHI+"_"+TIPO_SERVI+"_"+LOCALIDAD;
 				hashSC_Cecilia.putInSet(llaveCecilia, c);
 
-=======
+
 				maxHeapGravedad.agregar(c);
-				
-				String llaveCecilia = MEDIO_DETE+"_"+CLASE_VEHI+"_"+TIPO_SERVI+"_"+LOCALIDAD;
-				hashSC_Cecilia.putInSet(llaveCecilia, c);
-				
+
+
 				String llaveDia = c.darMes()+c.darDia();
 				hash_dia.putInSet(llaveDia, c);
-				
->>>>>>> 00b6421ca798457f8a519bb8973f88a3f187078f
+
 				arbolRN_Cecilia.put(latitud, c);
-				
+
 
 				if(OBJECTID > mayorID)
 				{
@@ -283,13 +276,13 @@ public class Modelo {
 	public Comparable[] darMComparendosMasGraves(int M)
 	{
 		Queue<Comparendo> aRetornar = new Queue<Comparendo>();
-		
+
 		while(M > 0)
 		{
 			aRetornar.enqueue(maxHeapGravedad.sacarMax());
 			M--;
 		}
-		
+
 		return copiarArreglo(aRetornar);
 	}
 
@@ -298,7 +291,7 @@ public class Modelo {
 	{
 		String llave = mes+dia;
 		return copiarArreglo(hash_dia.getSet(llave));
-		
+
 	}
 
 	//A3
@@ -311,7 +304,7 @@ public class Modelo {
 				arbolRN_fecha.put(e.darFecha(), e);
 			}
 		}
-		
+
 		arbolRN_fecha.valuesInRange(f1, f2);
 	}
 
@@ -369,15 +362,102 @@ public class Modelo {
 
 		Comparendo[] datos = copiarDatos();
 		shellSortPorFecha(datos);
-		ArrayList<String> fechas = todasLasFechas(); 
+
+		Date inicio = darFechaEnFormato("2018/01/01");
+
+		Calendar c1= Calendar.getInstance();
+		c1.setTime(inicio);
+		c1.add(Calendar.DATE, dias-1);
+		Date fin =  c1.getTime();
+
+		String[] asteriscos = comparendosEntreDosFechas(datos, inicio, fin, dias);
+
+		System.out.println(asteriscos.length);
 
 		System.out.println("Total de comparendos: " + darTamano());
 
-		System.out.println("Rango de fechas          |   Comparendos durante el año");
+		System.out.println("Rango de fechas \t\t\t|   Comparendos durante el año");
 		System.out.println("-------------------------------------------------------");
 
-		int i = 0;
+		String fecha = darSimpleDate(inicio) + " - " + darSimpleDate(fin);	
 
+		System.out.println(fecha + "\t\t\t |" + asteriscos[0]);
+
+		for(int i = 1; i < 365/dias; i++)
+		{
+
+			inicio = fin;
+			Calendar c = Calendar.getInstance();
+			c.setTime(inicio);
+			c.add(Calendar.DATE, 1);
+			inicio =  c.getTime();
+
+			c.setTime(fin);
+			c.add(Calendar.DATE, dias-1);
+			fin = c.getTime();
+
+			fecha = darSimpleDate(inicio) + " - " + darSimpleDate(fin);	
+
+			System.out.println(fecha + "\t\t\t |" + asteriscos[i]);
+		}
+
+		System.out.println("Cada * representa 300 comparendos");
+
+
+	}
+
+
+	public String[] comparendosEntreDosFechas(Comparendo[] comparendos, Date inicio, Date fin, int rango)
+	{
+
+
+		int totalComparendos = 0;
+		int totalFechas= 365/rango;
+		String[] asteriscos = new String[totalFechas] ;
+		int[] totales = new int[totalFechas];
+
+
+		for(int k= 0; k < totalFechas; k++)
+		{
+
+			for(int j = 0; j< comparendos.length; j++)
+			{
+				if(comparendos[j].darFecha().after(inicio) && comparendos[j].darFecha().before(fin))
+				{
+					totalComparendos++;
+				}
+
+			}
+
+			totales[k] = totalComparendos;
+
+			inicio =fin;
+			Calendar c1= Calendar.getInstance();
+			c1.setTime(inicio);
+			c1.add(Calendar.DATE, 1);
+			inicio = c1.getTime();
+
+			c1.setTime(fin);
+			c1.add(Calendar.DATE, rango-1);
+			fin = c1.getTime();
+
+			totalComparendos = 0;
+		}
+
+
+		for(int h =0; h<totales.length; h++)
+		{
+
+			asteriscos[h] ="";
+
+			for(int i = 0; i< totales[h]/300 ; i++)
+			{
+				asteriscos[h]+= "*";
+			}
+
+		}
+
+		return asteriscos;
 
 
 	}
@@ -385,7 +465,7 @@ public class Modelo {
 	//C2
 	public void costosDeEspera()
 	{
-		
+
 	}
 
 	//C3
