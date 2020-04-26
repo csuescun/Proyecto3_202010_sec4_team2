@@ -392,7 +392,7 @@ public class Modelo {
 			inicio =  c.getTime();
 
 			c.setTime(fin);
-			c.add(Calendar.DATE, dias-1);
+			c.add(Calendar.DATE, dias);
 			fin = c.getTime();
 
 			fecha = darSimpleDate(inicio) + " - " + darSimpleDate(fin);	
@@ -438,7 +438,7 @@ public class Modelo {
 			inicio = c1.getTime();
 
 			c1.setTime(fin);
-			c1.add(Calendar.DATE, rango-1);
+			c1.add(Calendar.DATE, rango);
 			fin = c1.getTime();
 
 			totalComparendos = 0;
@@ -465,9 +465,9 @@ public class Modelo {
 	//C2
 	public void costosDeEspera()
 	{
-
+		
 	}
-
+	
 	//C3
 	public void costosNuevoSistema()
 	{
