@@ -1,6 +1,9 @@
 package controller;
 
 import model.data_structures.Queue;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 
 import model.logic.Comparendo;
@@ -60,14 +63,51 @@ public class Controller {
 
 
 			case 2:
-
+			
+				view.printMessage("Digite la cantidad de comparendos que quiere buscar");
+				int num = Integer.parseInt(lector.next());
+				
+				Comparable [] graves = modelo.darMComparendosMasGraves(num);
+				for(int i = 0;i<graves.length;i++)
+				{
+					Comparendo actual = (Comparendo)graves[i];
+					view.printMessage(actual.datosCluster3());
+				}
+				
 				break;
 
 			case 3:
-
+				view.printMessage("Ingrese un mes del año en forma numerica");
+				int mes = Integer.parseInt(lector.next());
+				view.printMessage("Ingrese un dia de la semana utilizando la primera letra");
+				String dia = lector.next();
+				Comparable[] busc = modelo.buscarComparendosMesDia(mes, dia);
+				for(int i = 0;i<busc.length;i++)
+				{
+					Comparendo actual = (Comparendo)busc[i];
+					view.printMessage(actual.datosCluster3());
+				}
+				
 				break;
 
 			case 4:
+				try{
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+				view.printMessage("Escriba una fecha");
+				String a = lector.next();
+				Date f1 = formatter.parse(a);
+				view.printMessage("Escriba otra fecha");
+				String b = lector.next();
+				Date f2 = formatter.parse(b);
+				view.printMessage("Ingrese una localidad");
+				String local = lector.next();
+						
+				modelo.buscarRangoFHLocalidad(f1, f2, local);
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
 
 				break;
 
