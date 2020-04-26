@@ -470,6 +470,97 @@ public class Modelo {
 	public void costosDeEspera()
 	{
 		try{
+			int penalizacion =0;
+			String resp = "Fecha	|Comparendos Procesados***\n		|Comparendos que estan en espera###";
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+			Queue<Comparendo> espera = new Queue<Comparendo>();
+			Queue<Comparendo> procesados = new Queue<Comparendo>();
+			int i = 0;
+			Date inicial = formatter.parse("2018/01/01");
+			Date ultimo = formatter.parse("2019/01/01");
+			while(inicial.before(ultimo))
+			{
+				resp += inicial.toString()+"|";
+				boolean terminado = false;
+				int leidos = 0;
+				while(i<=1500&&!espera.isEmpty())
+				{
+					Comparendo actual = espera.dequeue();
+					procesados.enqueue(actual);
+					int valor = 4;
+					if(actual.darDesInfraccion().contains(" INMOVILIZADO")&&actual.darDesInfraccion().contains("SER"))
+					{
+						valor=400;
+					}
+					else if(actual.darDesInfraccion().contains("LICENCIA DE CONDUCC"))
+					{
+						valor = 40;
+					}
+					int diasretrasado=(int) ((inicial.getTime()-actual.darFecha().getTime())/86400000);
+					penalizacion += diasretrasado*valor;
+					i++;
+					leidos++;
+				}
+				while(!terminado)
+				{
+					Comparendo actual = maxHeapFecha.darMax();
+					if(actual!=null&&actual.darFecha().equals(inicial))
+					{
+						maxHeapFecha.sacarMax();
+						espera.enqueue(actual);		
+					}
+					else{
+						terminado = true;
+					}	
+				}
+				int dif = 1500 -leidos;
+				for(int x = 0;x<dif&&!espera.isEmpty();x++)
+				{
+					Comparendo actual = espera.dequeue();
+					procesados.enqueue(actual);
+					int valor = 4;
+					if(actual.darDesInfraccion().contains(" INMOVILIZADO")&&actual.darDesInfraccion().contains("SER"))
+					{
+						valor=400;
+					}
+					else if(actual.darDesInfraccion().contains("LICENCIA DE CONDUCC"))
+					{
+						valor = 40;
+					}
+					int diasretrasado=(int) ((inicial.getTime()-actual.darFecha().getTime())/86400000);
+					penalizacion += diasretrasado*valor;
+					i++;
+					leidos++;
+				}
+				int asteriscos = leidos/300;
+				int numerales = espera.darTamano()/300;
+				for(int z = 0;z<asteriscos;z++)
+				{
+					resp += "*";
+				}
+				resp += "\n";
+				for(int h=0;h<numerales;h++)
+				{
+					resp +="#";
+				}
+				resp += "\n";
+				
+				inicial.setDate(inicial.getDate()+1);
+			}
+			System.out.print(resp);
+			System.out.println("El total de penalizacion fue de: "+penalizacion);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+	
+	//C3
+	public void costosNuevoSistema()
+	{
+		try{
 			String resp = "Fecha	|Comparendos Procesados***\n		|Comparendos que estan en espera###";
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
 			Queue<Comparendo> espera = new Queue<Comparendo>();
@@ -530,13 +621,6 @@ public class Modelo {
 		{
 			e.printStackTrace();
 		}
-
-	}
-	
-	//C3
-	public void costosNuevoSistema()
-	{
-		
 		
 	}
 
