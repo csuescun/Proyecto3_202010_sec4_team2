@@ -189,20 +189,10 @@ public class Comparendo implements Comparable<Comparendo> {
 
 	public String datosCluster()
 	{
-		return " OBJECTID: "+objectID+" FECHA_HORA: "+fecha+" LOCALIDAD: "+localidad +"INFRACCION: "+infraccion;	
+		return " ObjectID: "+objectID+" Fecha-hora: "+fecha +" Infraccion: "+ infraccion + " Clase vehiculo: " + claseVehiculo + " Tipo Servicio: " + tipoServicio + " Localidad: " + localidad ;	
 	}
 	
-	
-	public String datosCluster2()
-	{
-		return "OBJECTID:" + objectID + "CLASE VEHICULO:" + claseVehiculo + "Latitud:" + latitud + "Longitud:" + longitud ;
-	}
-	
-	public String datosCluster3()
-	{
-		return "OBJECTID: " + objectID + " Tipo Servicio: "	+ tipoServicio + " Infracción: " + infraccion + " Fecha-hora: " + fecha + " Clase vehiculo: " + claseVehiculo + " Longitud: " + longitud + " Latitud: " + latitud;
-	}
-	
+
 	
 	@Override
 	public int compareTo(Comparendo comparendo) 

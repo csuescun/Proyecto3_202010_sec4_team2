@@ -63,6 +63,8 @@ public class Modelo {
 	private Comparendo mayorComparendo;
 
 	private EstacionPolicia mayorEstacion;
+	
+	private Vertice<Integer, LatitudYLongitud> mayorVertice;
 
 
 	// -----------------------------------------------------------------
@@ -222,6 +224,7 @@ public class Modelo {
 
 		try
 		{
+			int mayorID  = 0;
 			reader = new JsonReader(new FileReader(ARCHIVO_ESTACIONES));
 			JsonParser jsonp = new JsonParser();
 
@@ -235,15 +238,26 @@ public class Modelo {
 				int objectID = e.getAsJsonObject().get("properties").getAsJsonObject().get("OBJECTID").getAsInt();
 				String nombre = e.getAsJsonObject().get("properties").getAsJsonObject().get("EPONOMBRE").getAsString();
 
+				String descripcion = e.getAsJsonObject().get("properties").getAsJsonObject().get("EPODESCRIP").getAsString();
+				String direccion = e.getAsJsonObject().get("properties").getAsJsonObject().get("EPODIR_SITIO").getAsString();
+				String servicio = e.getAsJsonObject().get("properties").getAsJsonObject().get("EPOSERVICIO").getAsString() ;
+				String horario =  e.getAsJsonObject().get("properties").getAsJsonObject().get("EPOHORARIO").getAsString();
+				String telefono = e.getAsJsonObject().get("properties").getAsJsonObject().get("EPOTELEFON").getAsString() ;
+				String iu =  e.getAsJsonObject().get("properties").getAsJsonObject().get("EPOIULOCAL").getAsString();
+				
 				double longitud = e.getAsJsonObject().get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray()
 						.get(0).getAsDouble();
 
 				double latitud = e.getAsJsonObject().get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray()
 						.get(1).getAsDouble();
 
-				EstacionPolicia ep = new EstacionPolicia(nombre, objectID, latitud, longitud);
+				EstacionPolicia ep = new EstacionPolicia(nombre, objectID, descripcion, direccion, servicio, horario, telefono, iu, latitud, longitud);
 				estaciones.enqueue(ep);
 
+				if(objectID > mayorID)
+				{
+					mayorEstacion = ep;
+				}
 			}
 
 
@@ -264,6 +278,7 @@ public class Modelo {
 
 	public void cargarVertices() throws IOException
 	{
+		int mayorID  = 0;
 		FileReader fr = new FileReader(new File(RUTA_VERTICES));
 		BufferedReader br = new BufferedReader(fr);
 
@@ -280,6 +295,11 @@ public class Modelo {
 
 			grafo.addVertex(objectID, ubicacion);
 
+			if(objectID > mayorID)
+			{
+				mayorVertice  = new Vertice<Integer, LatitudYLongitud>(objectID, ubicacion); 
+			}
+			
 			l= br.readLine();
 
 		}
@@ -295,6 +315,7 @@ public class Modelo {
 	 */
 	public void cargarArcos() throws IOException
 	{
+		int mayorID  = 0;
 		FileReader fr = new FileReader(new File(RUTA_ARCOS));
 		BufferedReader br = new BufferedReader(fr);
 
@@ -450,7 +471,33 @@ public class Modelo {
 	{
 		return mayorComparendo;
 	}
+	
+	public EstacionPolicia darMayorEstacion()
+	{
+		return mayorEstacion;
+	}
 
+	public String darMayorVertice()
+	{
+		return "ID: "+ mayorVertice.darID() + mayorVertice.darValor().toString();
+	}
+	
+	public String darArcosMayor()
+	{
+		String respuesta = "(" + mayorVertice.darID();
+		Iterator<Arco<Integer>> arcos = mayorVertice.darAdyacentes().iterator();
+		
+		while(arcos.hasNext())
+		{
+			Arco<Integer> actual = arcos.next();
+			respuesta = respuesta + " , " + actual.darFin();
+		}
+		
+		respuesta = respuesta + " )";
+		
+		return respuesta;
+	}
+	
 	public Queue<EstacionPolicia> darEstaciones()
 	{
 		return estaciones;
@@ -520,6 +567,12 @@ public class Modelo {
 	{
 		return Math.pow(Math.sin(val / 2), 2);
 	}
+
+	
+
+	// -----------------------------------------------------------------
+	// Requerimientos iniciales
+	// -----------------------------------------------------------------
 
 	
 
