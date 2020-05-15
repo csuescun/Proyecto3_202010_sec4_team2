@@ -10,5 +10,9 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/gson-2.8.6.jar"/>
+	<classpathentry kind="lib" path="/Users/cecilia/Documents/Septimo Semestre/Estructuras de Datos/jxmaps-1.3.2/lib/jxmaps-1.3.2.jar"/>
+	<classpathentry kind="lib" path="/Users/cecilia/Documents/Septimo Semestre/Estructuras de Datos/jxmaps-1.3.2/lib/jxmaps-mac-1.3.2.jar"/>
+	<classpathentry kind="lib" path="/Users/cecilia/Documents/Septimo Semestre/Estructuras de Datos/jxmaps-1.3.2/lib/jxmaps-win-1.3.2.jar"/>
+	<classpathentry kind="lib" path="/Users/cecilia/Documents/Septimo Semestre/Estructuras de Datos/jxmaps-1.3.2/demo/jxmapsdemo.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

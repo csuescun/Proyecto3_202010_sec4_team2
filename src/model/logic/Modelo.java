@@ -1,7 +1,11 @@
 package model.logic;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -28,53 +32,63 @@ public class Modelo {
 
 	public static String PATH = "./data/Comparendos_DEI_2018_Bogotá_D.C.geojson";
 
-	public static final int MAX_REVISION = 1500;
+	public static String ARCHIVO_ESTACIONES = "./data/estacionpolicia.geojson";
+
+	public static String RUTA_VERTICES = "./data/bogota_vertices.txt";
+
+	public static String RUTA_ARCOS = "./data/bogota_arcos.txt";
+	
+	private static final int EARTH_RADIUS = 6371;
+
+
 	/**
 	 * Atributos del modelo del mundo
 	 */
 
 	//ESTRUCTURAS DE DATOS
 
-	private Queue<Comparendo> datos;
+	private Queue<Comparendo> comparendos;
 
-	private MaxHeapCP<Comparendo> maxHeapCecilia,maxHeapGravedad,maxHeapFecha;
+	private Queue<EstacionPolicia> estaciones;
 
-	private SeparateChainingHash<String, Comparendo> hashSC_Cecilia,hash_dia;
+	private GrafoNoDirigido<Integer, LatitudYLongitud> grafo;
 
-	private RedBlackBST<Double, Comparendo> arbolRN_Cecilia;
-
-
-
-	private RedBlackBST<Date, Comparendo> arbolRN_fecha;
-
+	private GrafoNoDirigido<Integer, LatitudYLongitud> grafoArchivo;
 
 
 
 	//ADICIONALES
-	private static Comparable[] aux;
+
 
 	private Comparendo mayorComparendo;
 
+	private EstacionPolicia mayorEstacion;
 
-	/**
-	 * Constructor del modelo del mundo con capacidad predefinida
-	 */
+
+	// -----------------------------------------------------------------
+	// Constructor
+	// -----------------------------------------------------------------
 
 	public Modelo()
 	{
-		datos = new Queue<Comparendo>();
-		maxHeapCecilia = new MaxHeapCP<Comparendo>(new ComparadorDistancias());
-		maxHeapGravedad = new MaxHeapCP<Comparendo>(new Gravedad());
-		hashSC_Cecilia = new SeparateChainingHash<String, Comparendo>(7);
-		hash_dia = new SeparateChainingHash<String,Comparendo>(7);
-		arbolRN_Cecilia = new RedBlackBST<Double, Comparendo>();
-		arbolRN_fecha = new RedBlackBST<Date,Comparendo>();
-		maxHeapFecha = new MaxHeapCP<Comparendo>(new Fechas());
+		comparendos = new Queue<Comparendo>();
+
+		estaciones = new Queue<EstacionPolicia>();
+
+		grafo = new GrafoNoDirigido<Integer, LatitudYLongitud>();
+		grafoArchivo = new GrafoNoDirigido<Integer, LatitudYLongitud>();
 	}
 
 
-	//Iniciales
 
+	// -----------------------------------------------------------------
+	// Métodos de carga
+	// -----------------------------------------------------------------
+
+
+	/**
+	 * Cargar comparendos
+	 */
 	public void cargarDatos() 
 
 	{
@@ -120,26 +134,9 @@ public class Modelo {
 
 
 				//Faltan las otras estructuras
-				datos.enqueue(c);
-
-				// Requerimientos B:
-				maxHeapCecilia.agregar(c);
-
-				String llaveCecilia = MEDIO_DETE+"_"+CLASE_VEHI+"_"+TIPO_SERVI+"_"+LOCALIDAD;
-				hashSC_Cecilia.putInSet(llaveCecilia, c);
+				comparendos.enqueue(c);
 
 
-				maxHeapGravedad.agregar(c);
-				
-				
-				maxHeapFecha.agregar(c);
-
-
-				String llaveDia = c.darMes()+c.darDia();
-				hash_dia.putInSet(llaveDia, c);
-
-				arbolRN_fecha.put(c.darFecha(),c);
-				arbolRN_Cecilia.put(latitud, c);
 
 
 				if(OBJECTID > mayorID)
@@ -159,6 +156,9 @@ public class Modelo {
 	}
 
 
+	/**
+	 * Cargar comparendos - archivo small
+	 */
 
 	public void cargarDatosSmall() 
 
@@ -199,7 +199,7 @@ public class Modelo {
 				Comparendo c = new Comparendo(OBJECTID, FECHA_HORA, MEDIO_DETE, CLASE_VEHI, TIPO_SERVI, INFRACCION,DES_INFRAC, LOCALIDAD, longitud, latitud,"");
 				String key = c.darSimpleDate()+c.darClaseVehiculo()+c.darInfraccion();
 
-				datos.enqueue(c);
+				comparendos.enqueue(c);
 
 
 			}
@@ -212,6 +212,256 @@ public class Modelo {
 
 	}
 
+	/**
+	 * Cargar estaciones
+	 */
+
+	public void cargarEstaciones()
+	{
+		JsonReader reader;
+
+		try
+		{
+			reader = new JsonReader(new FileReader(ARCHIVO_ESTACIONES));
+			JsonParser jsonp = new JsonParser();
+
+			JsonElement elem = jsonp.parse(reader);
+			JsonArray e2 = elem.getAsJsonObject().get("features").getAsJsonArray();
+
+			for(JsonElement e: e2)
+			{
+
+
+				int objectID = e.getAsJsonObject().get("properties").getAsJsonObject().get("OBJECTID").getAsInt();
+				String nombre = e.getAsJsonObject().get("properties").getAsJsonObject().get("EPONOMBRE").getAsString();
+
+				double longitud = e.getAsJsonObject().get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray()
+						.get(0).getAsDouble();
+
+				double latitud = e.getAsJsonObject().get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray()
+						.get(1).getAsDouble();
+
+				EstacionPolicia ep = new EstacionPolicia(nombre, objectID, latitud, longitud);
+				estaciones.enqueue(ep);
+
+			}
+
+
+		}
+
+		catch (FileNotFoundException e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+
+
+	}
+
+	/**
+	 * Cargar vertices
+	 * @throws IOException
+	 */
+
+	public void cargarVertices() throws IOException
+	{
+		FileReader fr = new FileReader(new File(RUTA_VERTICES));
+		BufferedReader br = new BufferedReader(fr);
+
+		String l = br.readLine();
+
+		while(l != null)
+		{
+			String[] info = l.split(",");
+			int objectID = Integer.parseInt(info[0]);
+			double longitud = Double.parseDouble(info[1]);
+			double latitud = Double.parseDouble(info[2]);
+
+			LatitudYLongitud ubicacion = new LatitudYLongitud(latitud, longitud);
+
+			grafo.addVertex(objectID, ubicacion);
+
+			l= br.readLine();
+
+		}
+
+		br.close();
+		fr.close();
+	}
+
+
+	/**
+	 * Cargar arcos
+	 * @throws IOException
+	 */
+	public void cargarArcos() throws IOException
+	{
+		FileReader fr = new FileReader(new File(RUTA_ARCOS));
+		BufferedReader br = new BufferedReader(fr);
+
+		String l = br.readLine();
+
+		while(l.startsWith("#"))
+		{
+			l = br.readLine();
+		}
+		while(l != null)
+		{
+			String[] info = l.split(" ");
+			int idVerticeInicial = Integer.parseInt(info[0]);
+			double latitudInicial = grafo.getInfoVertex(idVerticeInicial).darLatitud();
+			double longitudInicial = grafo.getInfoVertex(idVerticeInicial).darLongitud();
+
+			int i = 1;
+			while(i < info.length)
+			{
+				int idVerticeFinal = Integer.parseInt(info[i]);
+				double latitudFinal= grafo.getInfoVertex(idVerticeFinal).darLatitud();
+				double longitudFinal = grafo.getInfoVertex(idVerticeFinal).darLongitud();
+
+				grafo.addEdge(idVerticeInicial, idVerticeFinal, distance(latitudInicial, longitudInicial, latitudFinal, longitudFinal));
+
+				i++;
+			}
+
+			l= br.readLine(); 
+
+		}
+
+		br.close();
+		fr.close();
+
+	}
+
+	// -----------------------------------------------------------------
+	// Métodos crear archivo y cargar JSON
+	// -----------------------------------------------------------------
+
+
+	public void crearJSON(String rutaArchivo) throws IOException
+	{
+		FileWriter fw = new FileWriter(rutaArchivo);
+
+		JsonObject g = new JsonObject();
+		JsonArray listaVertices = new JsonArray();
+
+		int i = 0;
+		while(i < grafo.V())
+		{
+			JsonObject vertice = new JsonObject(); 
+
+			vertice.addProperty("OBJECTID", i);
+
+			vertice.addProperty("LONGITUD", grafo.getInfoVertex(i).darLongitud());
+			vertice.addProperty("LATITUD", grafo.getInfoVertex(i).darLatitud());
+			Iterator<Arco<Integer>> arcos = grafo.getVertex(i).darAdyacentes().iterator();
+			JsonArray listaArcos = new JsonArray();
+
+
+			while(arcos.hasNext())
+			{
+				Arco<Integer> a = arcos.next();
+				JsonObject arcoTemp = new JsonObject(); 
+				arcoTemp.addProperty("IDVERTEX_FIN", a.darFin());
+				arcoTemp.addProperty("COSTO", a.darCosto());
+
+				listaArcos.add(arcoTemp);
+			}
+
+			vertice.add("arcos", listaArcos);
+			listaVertices.add(vertice);
+			i++;
+		}
+
+
+
+		g.add("features", listaVertices);
+		fw.write(g.toString());
+
+
+		fw.flush();
+		fw.close();
+
+	}
+
+
+	public void leerJSON(String pRutaArchivo) 
+	{
+		JsonReader reader;
+
+		try
+		{
+			reader = new JsonReader(new FileReader(pRutaArchivo));	
+			JsonParser jsonp = new JsonParser();
+
+			JsonElement elem = jsonp.parse(reader);
+			JsonArray e2 = elem.getAsJsonObject().get("features").getAsJsonArray();
+
+			for(JsonElement e: e2)
+			{
+				int objectID = e.getAsJsonObject().get("OBJECTID").getAsInt();
+				double longitud = e.getAsJsonObject().get("LONGITUD").getAsDouble();
+				double latitud = e.getAsJsonObject().get("LATITUD").getAsDouble();
+
+				LatitudYLongitud ubicacion = new LatitudYLongitud(latitud, longitud);
+				grafoArchivo.addVertex(objectID, ubicacion);
+
+				JsonArray arcos = e.getAsJsonObject().get("arcos").getAsJsonArray();
+				for(JsonElement a : arcos)
+				{
+					int idVertexFin = a.getAsJsonObject().get("IDVERTEX_FIN").getAsInt();
+					double costo = a.getAsJsonObject().get("COSTO").getAsDouble();
+
+					grafoArchivo.addEdge(objectID, idVertexFin, costo);
+				}
+			}
+
+		}
+
+		catch (FileNotFoundException e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+
+	}
+
+
+	// -----------------------------------------------------------------
+	// Métodos básicos
+	// -----------------------------------------------------------------
+
+	public int darTamanoComparendos()
+	{
+		return comparendos.darTamano();
+	}
+
+
+	public Comparendo darPrimerComparendo()
+	{
+		return comparendos.darPrimerElemento();
+	}
+
+	public Comparendo darUltimoComparendo()
+	{
+		return comparendos.darUltimoElemento();
+	}
+
+
+	public Comparendo darMayorComparendo()
+	{
+		return mayorComparendo;
+	}
+
+	public Queue<EstacionPolicia> darEstaciones()
+	{
+		return estaciones;
+	}
+
+	public GrafoNoDirigido<Integer, LatitudYLongitud> darGrafo()
+	{
+		return grafo;
+	}
+	
+	
 	public Comparendo[] copiarArreglo(Queue<Comparendo> arreglo)
 	{
 		Comparendo[] comparendos = new Comparendo[arreglo.darTamano()];
@@ -225,579 +475,53 @@ public class Modelo {
 	}
 
 
-	public Comparendo[] copiarDatos()
+	public int darTamanoEstaciones()
 	{
-		Comparendo[] comparendos = new Comparendo[datos.darTamano()];
-		int i = 0;
-		for(Comparendo e : datos)
-		{
-			comparendos[i] = e;
-			i++;
-		}
-		return comparendos;
-	}
-
-
-	public Queue<Comparendo> cargarMuestra(int N)
-	{
-		Queue<Comparendo> aRetornar = new Queue<Comparendo>();
-		Comparendo[] copia = copiarDatos();
-		shuffle(copia);
-
-		for(int i = 1; i <= N; i++ )
-		{
-			aRetornar.enqueue(copia[i]);
-		}
-
-		return aRetornar;
-	}
-
-
-	public int darTamano()
-	{
-		return datos.darTamano();
-	}
-
-
-	public Comparendo darPrimeroCola()
-	{
-		return datos.darPrimerElemento();
-	}
-
-	public Comparendo darUltimoCola()
-	{
-		return datos.darUltimoElemento();
-	}
-
-
-	public Comparendo darMayorComparendo()
-	{
-		return mayorComparendo;
-	}
-
-	//REQUERIMIENTOS FUNCIONALES
-
-	//A1
-	public Comparable[] darMComparendosMasGraves(int M)
-	{
-		Queue<Comparendo> aRetornar = new Queue<Comparendo>();
-
-		while(M > 0)
-		{
-			aRetornar.enqueue(maxHeapGravedad.sacarMax());
-			M--;
-		}
-
-		return copiarArreglo(aRetornar);
-	}
-
-	//A2
-	public Comparable[] buscarComparendosMesDia(int mes, String dia)
-	{
-		String llave = mes+dia;
-		return copiarArreglo(hash_dia.getSet(llave));
-
-	}
-
-	//A3
-	public void buscarRangoFHLocalidad(Date f1,Date f2, String localidad)
-	{
-		for(Comparendo e: datos)
-		{
-			if(e.darLocalidad().equals(localidad))
-			{
-				arbolRN_fecha.put(e.darFecha(), e);
-			}
-		}
-
-		arbolRN_fecha.valuesInRange(f1, f2);
-	}
-
-	//B1
-	public Comparable[] darMComparendosMasCercanos(int M)
-	{
-		Queue<Comparendo> aRetornar = new Queue<Comparendo>();
-
-		while(M > 0)
-		{
-			aRetornar.enqueue(maxHeapCecilia.sacarMax());
-			M--;
-		}
-
-		return copiarArreglo(aRetornar);
-	}
-
-	//B2
-	public Comparable[] buscarComparendosCaracteristicas(String medio_dete, String clase, String tipo, String localidad)
-	{
-		String llave = medio_dete + "_" + clase + "_" + tipo + "_" + localidad;
-
-		Comparable[] respuesta  = copiarArreglo(hashSC_Cecilia.getSet(llave));
-		shellSortPorFecha(respuesta);
-
-		return respuesta;
-
-	}
-
-	//B3
-
-	public Queue<Comparendo> buscarRangosLatitudTipo(double latitud1, double latitud2, String tipo)
-	{
-		Iterator<Comparendo> buscados = arbolRN_Cecilia.valuesInRange(latitud1, latitud2);
-		Queue<Comparendo> aRetornar  = new Queue<Comparendo>();
-
-		while(buscados.hasNext())
-		{
-			Comparendo agregado = buscados.next();
-
-			if(agregado.darTipoServicio().equals(tipo))
-			{
-				aRetornar.enqueue(agregado);
-			}
-
-		}
-
-		return aRetornar;
-
-	}
-
-	//C1
-	public void tablaASCII(int dias)
-	{
-
-
-		Date inicio = darFechaEnFormato("2018/01/01");
-
-		Calendar c1= Calendar.getInstance();
-		c1.setTime(inicio);
-		c1.add(Calendar.DATE, dias-1);
-		Date fin =  c1.getTime();
-
-		String[] asteriscos = comparendosEntreDosFechas(arbolRN_fecha, inicio, fin, dias);
-
-		System.out.println(asteriscos.length);
-
-		System.out.println("Total de comparendos: " + darTamano());
-
-		System.out.println("Rango de fechas\t\t\t\t|Comparendos durante el año");
-		System.out.println("-------------------------------------------------------");
-
-		String fecha = darSimpleDate(inicio) + " - " + darSimpleDate(fin);	
-
-		System.out.println(fecha + "\t\t\t |" + asteriscos[0]);
-
-		for(int i = 1; i < 365/dias; i++)
-		{
-
-			inicio = fin;
-			Calendar c = Calendar.getInstance();
-			c.setTime(inicio);
-			c.add(Calendar.DATE, 1);
-			inicio =  c.getTime();
-
-			c.setTime(fin);
-			c.add(Calendar.DATE, dias);
-			fin = c.getTime();
-
-			fecha = darSimpleDate(inicio) + " - " + darSimpleDate(fin);	
-
-			System.out.println(fecha + "\t\t\t |" + asteriscos[i]);
-		}
-
-		System.out.println("Cada * representa 300 comparendos");
-
-
-	}
-
-
-	public String[] comparendosEntreDosFechas(RedBlackBST<Date, Comparendo> comparendos, Date inicio, Date fin, int rango)
-	{
-
-
-		int totalComparendos = 0;
-		int totalFechas= 365/rango;
-		String[] asteriscos = new String[totalFechas] ;
-		int[] totales = new int[totalFechas];
-
-
-		for(int k= 0; k < totalFechas; k++)
-		{
-
-			Iterator<Comparendo> iterator = comparendos.valuesInRange(inicio, fin);
-
-			while(iterator.hasNext())
-			{
-				Comparendo actual = iterator.next();
-				totalComparendos++;
-
-			}
-
-
-			totales[k] = totalComparendos;
-
-			inicio =fin;
-			Calendar c1= Calendar.getInstance();
-			c1.setTime(inicio);
-			c1.add(Calendar.DATE, 1);
-			inicio = c1.getTime();
-
-			c1.setTime(fin);
-			c1.add(Calendar.DATE, rango);
-			fin = c1.getTime();
-
-			totalComparendos = 0;
-		}
-
-
-		for(int h =0; h<totales.length; h++)
-		{
-
-			asteriscos[h] ="";
-
-			for(int i = 0; i< totales[h]/300 ; i++)
-			{
-				asteriscos[h]+= "*";
-			}
-
-		}
-
-		return asteriscos;
-
-
-	}
-
-	//C2
-	public void costosDeEspera()
-	{
-		try{
-			int penalizacion =0;
-			String resp = "Fecha	|Comparendos Procesados***\n		|Comparendos que estan en espera###";
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-			Queue<Comparendo> espera = new Queue<Comparendo>();
-			Queue<Comparendo> procesados = new Queue<Comparendo>();
-			int i = 0;
-			Date inicial = formatter.parse("2018/01/01");
-			Date ultimo = formatter.parse("2019/01/01");
-			while(inicial.before(ultimo))
-			{
-				resp += inicial.toString()+"|";
-				boolean terminado = false;
-				int leidos = 0;
-				while(i<=1500&&!espera.isEmpty())
-				{
-					Comparendo actual = espera.dequeue();
-					procesados.enqueue(actual);
-					int valor = 4;
-					if(actual.darDesInfraccion().contains(" INMOVILIZADO")&&actual.darDesInfraccion().contains("SER"))
-					{
-						valor=400;
-					}
-					else if(actual.darDesInfraccion().contains("LICENCIA DE CONDUCC"))
-					{
-						valor = 40;
-					}
-					int diasretrasado=(int) ((inicial.getTime()-actual.darFecha().getTime())/86400000);
-					penalizacion += diasretrasado*valor;
-					i++;
-					leidos++;
-				}
-				while(!terminado)
-				{
-					Comparendo actual = maxHeapFecha.darMax();
-					if(actual!=null&&actual.darFecha().equals(inicial))
-					{
-						maxHeapFecha.sacarMax();
-						espera.enqueue(actual);		
-					}
-					else{
-						terminado = true;
-					}	
-				}
-				int dif = 1500 -leidos;
-				for(int x = 0;x<dif&&!espera.isEmpty();x++)
-				{
-					Comparendo actual = espera.dequeue();
-					procesados.enqueue(actual);
-					int valor = 4;
-					if(actual.darDesInfraccion().contains(" INMOVILIZADO")&&actual.darDesInfraccion().contains("SER"))
-					{
-						valor=400;
-					}
-					else if(actual.darDesInfraccion().contains("LICENCIA DE CONDUCC"))
-					{
-						valor = 40;
-					}
-					int diasretrasado=(int) ((inicial.getTime()-actual.darFecha().getTime())/86400000);
-					penalizacion += diasretrasado*valor;
-					i++;
-					leidos++;
-				}
-				int asteriscos = leidos/300;
-				int numerales = espera.darTamano()/300;
-				for(int z = 0;z<asteriscos;z++)
-				{
-					resp += "*";
-				}
-				resp += "\n";
-				for(int h=0;h<numerales;h++)
-				{
-					resp +="#";
-				}
-				resp += "\n";
-				
-				inicial.setDate(inicial.getDate()+1);
-			}
-			System.out.print(resp);
-			System.out.println("El total de penalizacion fue de: "+penalizacion);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-
+		return estaciones.darTamano();
 	}
 	
-	//C3
-	public void costosNuevoSistema()
+
+	public int darNumeroVertices()
 	{
-		try{
-			String resp = "Fecha	|Comparendos Procesados***\n		|Comparendos que estan en espera###";
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-			Queue<Comparendo> espera = new Queue<Comparendo>();
-			Queue<Comparendo> procesados = new Queue<Comparendo>();
-			int i = 0;
-			Date inicial = formatter.parse("2018/01/01");
-			Date ultimo = formatter.parse("2019/01/01");
-			while(inicial.before(ultimo))
-			{
-				resp += inicial.toString()+"|";
-				boolean terminado = false;
-				int leidos = 0;
-				while(i<=1500&&!espera.isEmpty())
-				{
-					Comparendo actual = espera.dequeue();
-					procesados.enqueue(actual);
-					i++;
-					leidos++;
-				}
-				while(!terminado)
-				{
-					Comparendo actual = maxHeapFecha.darMax();
-					if(actual!=null&&actual.darFecha().equals(inicial))
-					{
-						maxHeapFecha.sacarMax();
-						espera.enqueue(actual);		
-					}
-					else{
-						terminado = true;
-					}	
-				}
-				int dif = 1500 -leidos;
-				for(int x = 0;x<dif&&!espera.isEmpty();x++)
-				{
-					Comparendo actual = espera.dequeue();
-					procesados.enqueue(actual);
-					i++;
-					leidos++;
-				}
-				int asteriscos = leidos/300;
-				int numerales = espera.darTamano()/300;
-				for(int z = 0;z<asteriscos;z++)
-				{
-					resp += "*";
-				}
-				resp += "\n";
-				for(int h=0;h<numerales;h++)
-				{
-					resp +="#";
-				}
-				resp += "\n";
-				
-				inicial.setDate(inicial.getDate()+1);
-			}
-			System.out.print(resp);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		
+		return grafo.V();
+	}
+
+	
+	public int darNumeroArcos()
+	{
+		return grafo.E();
+	}
+	
+
+	public GrafoNoDirigido<Integer, LatitudYLongitud> darGrafoCreado()
+	{
+		return grafoArchivo;
 	}
 
 
-	//OTROS METODOS NECESARIOS
+	//Distancia haversine (tomado de: https://github.com/jasonwinn/haversine/blob/master/Haversine.java)
 
-	public RedBlackBST<Date, Comparendo> comparendosaArbolRN()
+	public static double distance(double startLat, double startLong, double endLat, double endLong) 
 	{
-		RedBlackBST<Date, Comparendo> respuesta = new RedBlackBST<Date, Comparendo>();
-		Iterator<Comparendo> comparendos = datos.iterator();
 
-		while(comparendos.hasNext())
-		{
-			Comparendo actual = comparendos.next();
-			respuesta.put(actual.darFecha(), actual);
-		}
+		double dLat  = Math.toRadians((endLat - startLat));
+		double dLong = Math.toRadians((endLong - startLong));
 
-		return respuesta;
+		startLat = Math.toRadians(startLat);
+		endLat   = Math.toRadians(endLat);
+
+		double a = haversin(dLat) + Math.cos(startLat) * Math.cos(endLat) * haversin(dLong);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+		return EARTH_RADIUS * c; // <-- d
 	}
 
-	public LinearProbingHash<Date, Comparendo> comparendosAHashLP()
+	public static double haversin(double val) 
 	{
-		LinearProbingHash<Date, Comparendo> tabla = new LinearProbingHash<Date, Comparendo>(7);
-		Iterator<Comparendo> comparendos = datos.iterator();
-
-		while(comparendos.hasNext())
-		{
-			Comparendo actual = comparendos.next();
-			tabla.putInSet(actual.darFecha(), actual);
-		}
-
-		return tabla;
-
-
+		return Math.pow(Math.sin(val / 2), 2);
 	}
 
+	
 
-	public String ponerAsteriscos(int total, int cantidad)
-	{
-		String respuesta = "";
-		int numero = (cantidad/total)+1;
-
-		int i = 0;
-		while(i< numero)
-		{
-			respuesta += "*";
-		}
-
-		return respuesta;
-	}
-
-	public String darAsteriscosCostos(int n)
-	{
-		String asteriscos = "";
-
-		int numeroTotal = n/100;
-		int i = 0;
-		while(i< numeroTotal)
-		{
-			asteriscos = asteriscos + "*";
-		}
-
-		return asteriscos;
-
-	}
-
-	public String darNumeralesCostos(int n)
-	{
-		String numerales = "";
-
-		int numeroTotal = n/100;
-		int i = 0;
-		while(i< numeroTotal)
-		{
-			numerales = numerales + "#";
-		}
-
-		return numerales;
-
-	}
-
-	public Date darFechaEnFormato(String fecha)
-	{
-		try
-		{
-			SimpleDateFormat parser = new SimpleDateFormat("yyyy/MM/dd");
-			Date respuesta = parser.parse(fecha); 
-
-			return respuesta;
-		}
-
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			System.out.println(e.getMessage());
-			return null;
-		}
-
-	}
-
-	public String darSimpleDate(Date fecha)
-	{
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");  
-		String strDate= formatter.format(fecha);
-		return strDate;
-	}
-
-	public ArrayList<String> todasLasFechas()
-	{
-		Comparendo[] datos = copiarDatos();
-		shellSortPorFecha(datos);
-
-		ArrayList<String> totalfechas = new ArrayList<String>();
-
-		String  fecha = "";
-		int i = 0;
-
-		while(i < datos.length)
-		{
-			String actual = datos[i].darSimpleDate();
-
-			if(!actual.equals(fecha))
-			{
-				totalfechas.add(actual);
-				fecha = actual; 
-			}
-		}
-
-		return totalfechas;
-	}
-
-	// ORDENAMIENTOS
-
-	//Shell
-
-
-	public static  boolean less(Comparable a, Comparable b)
-	{
-		return a.compareTo(b)<0;
-	}
-
-
-	public void shellSortPorFecha(Comparable[] a)
-	{
-		int N = a.length;
-		int h = 1;
-		while (h < N/3)
-			h = 3*h + 1;
-		while (h >= 1) {
-			for (int i = h; i < N; i++) {
-				for (int j = i; j >= h && less(a[j], a[j-h]); j -= h)
-					exch(a, j, j-h);
-			}
-			h = h/3;
-		}
-
-	}
-
-	public static void exch(Comparable[] a, int i, int j)
-	{
-		Comparable temporal = a[i];
-		a[i] = a[j];
-		a[j] = temporal;		
-	}
-
-
-	public void  shuffle(Comparendo[] total)
-	{
-		Random rnd = ThreadLocalRandom.current();
-		for (int i = total.length - 1; i > 0; i--)
-		{
-			int index = rnd.nextInt(i + 1);
-			// Simple swap
-			Comparendo a = total[index];
-			total[index] = total[i];
-			total[i] = a;
-		}
-	}
 
 }
