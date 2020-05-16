@@ -610,6 +610,8 @@ public class Modelo {
 			{
 				menor = actual;
 			}
+			
+			i++;
 		}
 
 		return menor;
