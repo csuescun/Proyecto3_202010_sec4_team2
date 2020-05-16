@@ -55,7 +55,6 @@ public class Modelo {
 
 	private GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> grafoArchivo;
 
-	private SeparateChainingHash<Integer, Queue<Comparendo>> comparendosYVertices;
 
 
 	//ADICIONALES
@@ -82,7 +81,6 @@ public class Modelo {
 		grafo = new GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>();
 		grafoArchivo = new GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>();
 
-		comparendosYVertices = new SeparateChainingHash<Integer, Queue<Comparendo>>(1000);
 	}
 
 
@@ -610,7 +608,7 @@ public class Modelo {
 			{
 				menor = actual;
 			}
-			
+
 			i++;
 		}
 
@@ -623,51 +621,86 @@ public class Modelo {
 	{
 
 		Iterator<Comparendo> comp = comparendos.iterator();
-		
+
 		while(comp.hasNext())
 		{
 			Comparendo actual = comp.next();
 			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> masCercano = darVerticeMasCercano(actual.darLatitud(), actual.darLongitud());
-			
+
 			masCercano.agregarA1(actual);
 		}
 	}
 
-	
+
 	public void adicionarComparendosArcos()
 	{
 		for(int i = 0; i < grafo.V() ; i++)
 		{
 			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> buscado = grafo.getVertex(i);
 			int comp = buscado.darAdicional1().darTamano();
-			
+
 			Iterator<Arco<Integer>> adyacentes = buscado.darAdyacentes().iterator();
-			
+
 			while(adyacentes.hasNext())
 			{
 				Arco<Integer> actual = adyacentes.next();
 				Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> fin = grafo.getVertex(actual.darFin());
 				int costoComparendos = comp + fin.darAdicional1().darTamano();
-				
+
 				actual.cambiarCostoComparendos(costoComparendos);
 			}
 		}
-				
+
 	}
-	
-	
+
+
 
 	public void adicionarEstacionesDePolicia()
 	{
 		Iterator<EstacionPolicia> est = estaciones.iterator();
-		
+
 		while(est.hasNext())
 		{
 			EstacionPolicia actual = est.next();
 			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> masCercano = darVerticeMasCercano(actual.darLatitud(), actual.darLongitud());
 
 			masCercano.agregarA2(actual);
-			
+
 		}
 	}
+
+	// -----------------------------------------------------------------
+	// Requerimientos 
+	// -----------------------------------------------------------------
+
+	public void requerimiento1A()
+	{
+		
+	}
+	
+	public void requerimiento2A()
+	{
+		
+	}
+	
+	public void requerimiento1B()
+	{
+		
+	}
+	
+	public void requerimiento2B()
+	{
+		
+	}
+	
+	public void requerimiento1C()
+	{
+		
+	}
+	
+	public void requerimiento2C()
+	{
+		
+	}
 }
+
