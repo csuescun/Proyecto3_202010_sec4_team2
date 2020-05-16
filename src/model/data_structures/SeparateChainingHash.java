@@ -3,7 +3,7 @@ package model.data_structures;
 import java.util.Iterator;
 
 
-public class SeparateChainingHash<Key extends Comparable<Key>,Value extends Comparable <Value>> implements IHash<Key, Value>
+public class SeparateChainingHash<Key extends Comparable<Key>,Value>
 {
 
 	private int n;
@@ -20,7 +20,8 @@ public class SeparateChainingHash<Key extends Comparable<Key>,Value extends Comp
 		st = new SeparateChainingHash.NodoHash[tamano];
 
 	} 
-
+	
+	
 	private class NodoHash 
 	{
 		private Key key; 

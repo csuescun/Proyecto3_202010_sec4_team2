@@ -6,20 +6,27 @@ public class Arco<Key>
 
 	private Key idVertexFin;
 
-	private double costoArco;
+	private double costoDistancia;
+	
+	private int costoComparendos;
 
 
-	public Arco(Key idI, Key idF, double costo)
+	public Arco(Key idI, Key idF, double costoDist)
 	{
 		idVertexInicio = idI;
 		idVertexFin = idF;
-		costoArco = costo;
+		costoDistancia = costoDist;
 	}
 
 
-	public void cambiarCosto(double pCosto)
+	public void cambiarCostoDistancia(double pCosto)
 	{
-		costoArco  = pCosto;
+		costoDistancia  = pCosto;
+	}
+	
+	public void cambiarCostoComparendos(int totalComparendos)
+	{
+		costoComparendos = totalComparendos; 
 	}
 
 	public Key darInicio()
@@ -32,9 +39,14 @@ public class Arco<Key>
 		return idVertexFin;
 	}
 
-	public double darCosto()
+	public double darCostoDistancia()
 	{
-		return costoArco;
+		return costoDistancia;
+	}
+	
+	public int darCostoComparendos()
+	{
+		return costoComparendos;
 	}
 
 

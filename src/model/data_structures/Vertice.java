@@ -2,7 +2,7 @@ package model.data_structures;
 
 import model.data_structures.Arco;
 
-public class Vertice<Key, Value> 
+public class Vertice<Key, Value, Adicional1, Adicional2> 
 {
 	private Key idVertex;
 
@@ -11,12 +11,18 @@ public class Vertice<Key, Value>
 	private boolean marca; 
 
 	private Queue<Arco<Key>> adyacentes;
+	
+	private Queue<Adicional1> adicion1;
+	
+	private Queue<Adicional2> adicion2;
 
 	public Vertice(Key id, Value valor)
 	{
 		idVertex  = id;
 		valorVertex  = valor;
 		adyacentes  = new Queue<Arco<Key>>();
+		adicion1 = new Queue<Adicional1>();
+		adicion2 = new Queue<Adicional2>();
 	}
 	
 	public Key darID()
@@ -54,9 +60,29 @@ public class Vertice<Key, Value>
 		marca = true;
 	}
 
+	public Queue<Adicional1> darAdicional1()
+	{
+		return adicion1;
+	}
+	
+	public Queue<Adicional2> darAdicional2()
+	{
+		return adicion2;
+		
+	}
 	public void desmarcar()
 	{
 		marca = false;
+	}
+	
+	public void agregarA1(Adicional1 v)
+	{
+		adicion1.enqueue(v);
+	}
+	
+	public void agregarA2(Adicional2 v)
+	{
+		adicion2.enqueue(v);
 	}
 
 	

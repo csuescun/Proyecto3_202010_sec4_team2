@@ -53,8 +53,8 @@ public class Mapa extends MapView
 
 	public Mapa(Modelo pModelo, boolean pintarEstaciones)
 	{
-		GrafoNoDirigido<Integer, LatitudYLongitud> grafo = pModelo.darGrafo();
-		SeparateChainingHashST<Integer, Vertice<Integer, LatitudYLongitud>> vertices = grafo.darVertices();
+		GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo,EstacionPolicia> grafo = pModelo.darGrafo();
+		SeparateChainingHashST<Integer, Vertice<Integer, LatitudYLongitud, Comparendo,EstacionPolicia >> vertices = grafo.darVertices();
 
 		setOnMapReadyHandler(new MapReadyHandler() 
 		{

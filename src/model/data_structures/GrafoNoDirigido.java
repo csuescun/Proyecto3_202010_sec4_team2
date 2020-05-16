@@ -4,7 +4,7 @@ import java.util.Iterator;
 import model.data_structures.Vertice;
 import model.data_structures.Arco;
 
-public class GrafoNoDirigido<Key extends Comparable<Key>, Value> 
+public class GrafoNoDirigido<Key extends Comparable<Key>, Value, Adicional1, Adicional2> 
 {
 
 
@@ -12,7 +12,7 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 
 	private int nArcos;
 
-	private SeparateChainingHashST<Key, Vertice<Key, Value>> vertices;
+	private SeparateChainingHashST<Key, Vertice<Key, Value, Adicional1, Adicional2>> vertices;
 	
 	private Queue<Arco<Key>> arcos;
 
@@ -22,7 +22,7 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 		nVertices = 0;
 		nArcos = 0;
 
-		vertices = new SeparateChainingHashST<Key, Vertice<Key, Value>>(1000);
+		vertices = new SeparateChainingHashST<Key, Vertice<Key, Value, Adicional1, Adicional2>>(1000);
 		arcos = new Queue<Arco<Key>>();
 
 	}
@@ -32,12 +32,12 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 		nVertices = num;
 		nArcos = 0;
 
-		vertices = new SeparateChainingHashST<Key, Vertice<Key, Value>>(1000);
+		vertices = new SeparateChainingHashST<Key, Vertice<Key, Value, Adicional1, Adicional2>>(1000);
 
 
 	}
 
-	public SeparateChainingHashST<Key, Vertice<Key, Value>> darVertices()
+	public SeparateChainingHashST<Key, Vertice<Key, Value, Adicional1, Adicional2>> darVertices()
 	{
 		return vertices;
 	}
@@ -58,8 +58,8 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 	{
 		if(getInfoVertex(VI) != null && getInfoVertex(VF) != null)
 		{
-			Vertice<Key, Value> inicio = vertices.get(VI);
-			Vertice<Key, Value> fin = vertices.get(VF);
+			Vertice<Key, Value, Adicional1, Adicional2> inicio = vertices.get(VI);
+			Vertice<Key, Value, Adicional1, Adicional2> fin = vertices.get(VF);
 
 
 			Arco<Key> arco =new Arco<Key>(VI, VF, cost);
@@ -73,7 +73,7 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 
 	public Value getInfoVertex(Key id)
 	{
-		Vertice<Key,Value> buscado = vertices.get(id);
+		Vertice<Key,Value, Adicional1,Adicional2> buscado = vertices.get(id);
 
 		if (buscado != null)
 		{
@@ -84,9 +84,9 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 
 	}
 
-	public Vertice<Key, Value> getVertex(Key id)
+	public Vertice<Key, Value, Adicional1,Adicional2> getVertex(Key id)
 	{
-		Vertice<Key,Value> buscado = vertices.get(id);
+		Vertice<Key,Value, Adicional1,Adicional2> buscado = vertices.get(id);
 
 		if (buscado != null)
 		{
@@ -98,7 +98,7 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 
 	public void setInfoVertex(Key id, Value info)
 	{
-		Vertice<Key,Value> buscado = vertices.get(id);
+		Vertice<Key,Value, Adicional1, Adicional2> buscado = vertices.get(id);
 
 		if (buscado != null)
 		{
@@ -108,8 +108,8 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 
 	public double getCostArc(Key VI, Key VF)
 	{
-		Vertice<Key, Value> buscadoInicial =  vertices.get(VI);
-		Vertice<Key, Value> buscadoFinal = vertices.get(VF);
+		Vertice<Key, Value, Adicional1,Adicional2> buscadoInicial =  vertices.get(VI);
+		Vertice<Key, Value, Adicional1,Adicional2> buscadoFinal = vertices.get(VF);
 
 		Iterator<Arco<Key>> ady = buscadoInicial.darAdyacentes().iterator();
 
@@ -118,7 +118,7 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 			Arco<Key> actual = ady.next();
 			if(actual.darFin().compareTo(VF) == 0)
 			{
-				return actual.darCosto();
+				return actual.darCostoDistancia();
 			}
 		}
 
@@ -128,8 +128,8 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 
 	public void setCostArc(Key idVI,Key idVF, double cost)
 	{
-		Vertice<Key, Value> buscadoInicial =  vertices.get(idVI);
-		Vertice<Key, Value> buscadoFinal = vertices.get(idVF);
+		Vertice<Key, Value, Adicional1,Adicional2> buscadoInicial =  vertices.get(idVI);
+		Vertice<Key, Value, Adicional1,Adicional2> buscadoFinal = vertices.get(idVF);
 
 		Iterator<Arco<Key>> ady = buscadoInicial.darAdyacentes().iterator();
 
@@ -138,7 +138,7 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 			Arco<Key> actual = ady.next();
 			if(actual.darFin().compareTo(idVI) == 0)
 			{
-				actual.cambiarCosto(cost);
+				actual.cambiarCostoDistancia(cost);
 				break;
 			}
 		}
@@ -150,7 +150,7 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 			Arco<Key> actual = ady.next();
 			if(actual.darFin().compareTo(idVI) == 0)
 			{
-				actual.cambiarCosto(cost);
+				actual.cambiarCostoDistancia(cost);
 				break;
 			}
 		}
@@ -159,14 +159,14 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 
 	public void addVertex(Key idVertix, Value infoVertix)
 	{
-		Vertice<Key, Value> nuevoVertice = new Vertice<Key, Value>(idVertix, infoVertix);
+		Vertice<Key, Value, Adicional1,Adicional2> nuevoVertice = new Vertice<Key, Value, Adicional1,Adicional2>(idVertix, infoVertix);
 		vertices.put(idVertix, nuevoVertice);
 		nVertices++;
 	}
 
 	public Iterable<Key> adj(Key idVertix)
 	{
-		Vertice<Key, Value> buscado =  vertices.get(idVertix);
+		Vertice<Key, Value, Adicional1,Adicional2> buscado =  vertices.get(idVertix);
 
 		Iterator<Arco<Key>> ady = buscado.darAdyacentes().iterator();
 		Queue<Key> aRetornar = new Queue<Key>();
@@ -194,12 +194,12 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 
 	public void dfs(Key s)
 	{
-		Vertice<Key,Value> v =  vertices.get(s);
+		Vertice<Key,Value, Adicional1,Adicional2> v =  vertices.get(s);
 		v.marcar();
 		vertices.put(s, v);
 		for(Key e: adj(s))
 		{
-			Vertice<Key,Value> actual = vertices.get(e);
+			Vertice<Key,Value, Adicional1,Adicional2> actual = vertices.get(e);
 			if(!actual.darMarked())
 			{
 				dfs(e);
@@ -217,7 +217,7 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value>
 		while(llaves.hasNext())
 		{
 			Key actual = llaves.next();
-			Vertice<Key,Value> v = vertices.get(actual);
+			Vertice<Key,Value, Adicional1,Adicional2> v = vertices.get(actual);
 			if(!v.darMarked()){
 				dfs(actual);
 				cc++;

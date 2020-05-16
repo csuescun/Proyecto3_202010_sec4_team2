@@ -37,7 +37,7 @@ public class Modelo {
 	public static String RUTA_VERTICES = "./data/bogota_vertices.txt";
 
 	public static String RUTA_ARCOS = "./data/bogota_arcos.txt";
-	
+
 	private static final int EARTH_RADIUS = 6371;
 
 
@@ -51,10 +51,11 @@ public class Modelo {
 
 	private Queue<EstacionPolicia> estaciones;
 
-	private GrafoNoDirigido<Integer, LatitudYLongitud> grafo;
+	private GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> grafo;
 
-	private GrafoNoDirigido<Integer, LatitudYLongitud> grafoArchivo;
+	private GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> grafoArchivo;
 
+	private SeparateChainingHash<Integer, Queue<Comparendo>> comparendosYVertices;
 
 
 	//ADICIONALES
@@ -63,8 +64,9 @@ public class Modelo {
 	private Comparendo mayorComparendo;
 
 	private EstacionPolicia mayorEstacion;
-	
-	private Vertice<Integer, LatitudYLongitud> mayorVertice;
+
+	private Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> mayorVertice;
+
 
 
 	// -----------------------------------------------------------------
@@ -77,8 +79,10 @@ public class Modelo {
 
 		estaciones = new Queue<EstacionPolicia>();
 
-		grafo = new GrafoNoDirigido<Integer, LatitudYLongitud>();
-		grafoArchivo = new GrafoNoDirigido<Integer, LatitudYLongitud>();
+		grafo = new GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>();
+		grafoArchivo = new GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>();
+
+		comparendosYVertices = new SeparateChainingHash<Integer, Queue<Comparendo>>(1000);
 	}
 
 
@@ -108,37 +112,43 @@ public class Modelo {
 			JsonElement elem = jsonp.parse(reader);
 			JsonArray e2 = elem.getAsJsonObject().get("features").getAsJsonArray();
 
-
-			SimpleDateFormat parser=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+			int OBJECTID;
+			String FECHA_HORA;
+			String MEDIO_DETE;
+			String CLASE_VEHI;
+			String TIPO_SERVI;
+			String INFRACCION;
+			String DES_INFRAC;
+			String LOCALIDAD;
+			String MUNICIPIO;
+			double longitud;
+			double latitud;
 
 			for(JsonElement e: e2) {
-				int OBJECTID = e.getAsJsonObject().get("properties").getAsJsonObject().get("OBJECTID").getAsInt();
+				OBJECTID = e.getAsJsonObject().get("properties").getAsJsonObject().get("OBJECTID").getAsInt();
 
 
-				String FECHA_HORA = e.getAsJsonObject().get("properties").getAsJsonObject().get("FECHA_HORA").getAsString();
+				FECHA_HORA = e.getAsJsonObject().get("properties").getAsJsonObject().get("FECHA_HORA").getAsString();
 
-				String MEDIO_DETE = e.getAsJsonObject().get("properties").getAsJsonObject().get("MEDIO_DETECCION").getAsString();
-				String CLASE_VEHI = e.getAsJsonObject().get("properties").getAsJsonObject().get("CLASE_VEHICULO").getAsString();
-				String TIPO_SERVI = e.getAsJsonObject().get("properties").getAsJsonObject().get("TIPO_SERVICIO").getAsString();
-				String INFRACCION = e.getAsJsonObject().get("properties").getAsJsonObject().get("INFRACCION").getAsString();
-				String DES_INFRAC = e.getAsJsonObject().get("properties").getAsJsonObject().get("DES_INFRACCION").getAsString();	
-				String LOCALIDAD = e.getAsJsonObject().get("properties").getAsJsonObject().get("LOCALIDAD").getAsString();
-				String MUNICIPIO = e.getAsJsonObject().get("properties").getAsJsonObject().get("MUNICIPIO").getAsString();
+				MEDIO_DETE = e.getAsJsonObject().get("properties").getAsJsonObject().get("MEDIO_DETECCION").getAsString();
+				CLASE_VEHI = e.getAsJsonObject().get("properties").getAsJsonObject().get("CLASE_VEHICULO").getAsString();
+				TIPO_SERVI = e.getAsJsonObject().get("properties").getAsJsonObject().get("TIPO_SERVICIO").getAsString();
+				INFRACCION = e.getAsJsonObject().get("properties").getAsJsonObject().get("INFRACCION").getAsString();
+				DES_INFRAC = e.getAsJsonObject().get("properties").getAsJsonObject().get("DES_INFRACCION").getAsString();	
+				LOCALIDAD = e.getAsJsonObject().get("properties").getAsJsonObject().get("LOCALIDAD").getAsString();
+				MUNICIPIO = e.getAsJsonObject().get("properties").getAsJsonObject().get("MUNICIPIO").getAsString();
 
-				double longitud = e.getAsJsonObject().get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray()
+				longitud = e.getAsJsonObject().get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray()
 						.get(0).getAsDouble();
 
-				double latitud = e.getAsJsonObject().get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray()
+				latitud = e.getAsJsonObject().get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray()
 						.get(1).getAsDouble();
 
+
 				Comparendo c = new Comparendo(OBJECTID, FECHA_HORA, MEDIO_DETE, CLASE_VEHI, TIPO_SERVI, INFRACCION,DES_INFRAC, LOCALIDAD, longitud, latitud, MUNICIPIO);
-				String key = c.darSimpleDate()+c.darClaseVehiculo()+c.darInfraccion();
 
 
-				//Faltan las otras estructuras
 				comparendos.enqueue(c);
-
-
 
 
 				if(OBJECTID > mayorID)
@@ -244,7 +254,7 @@ public class Modelo {
 				String horario =  e.getAsJsonObject().get("properties").getAsJsonObject().get("EPOHORARIO").getAsString();
 				String telefono = e.getAsJsonObject().get("properties").getAsJsonObject().get("EPOTELEFON").getAsString() ;
 				String iu =  e.getAsJsonObject().get("properties").getAsJsonObject().get("EPOIULOCAL").getAsString();
-				
+
 				double longitud = e.getAsJsonObject().get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray()
 						.get(0).getAsDouble();
 
@@ -297,9 +307,9 @@ public class Modelo {
 
 			if(objectID > mayorID)
 			{
-				mayorVertice  = new Vertice<Integer, LatitudYLongitud>(objectID, ubicacion); 
+				mayorVertice  = new Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>(objectID, ubicacion); 
 			}
-			
+
 			l= br.readLine();
 
 		}
@@ -383,7 +393,8 @@ public class Modelo {
 				Arco<Integer> a = arcos.next();
 				JsonObject arcoTemp = new JsonObject(); 
 				arcoTemp.addProperty("IDVERTEX_FIN", a.darFin());
-				arcoTemp.addProperty("COSTO", a.darCosto());
+				arcoTemp.addProperty("COSTO_DISTANCIA", a.darCostoDistancia());
+				arcoTemp.addProperty("COSTO_COMPARENDOS", a.darCostoComparendos());
 
 				listaArcos.add(arcoTemp);
 			}
@@ -430,9 +441,9 @@ public class Modelo {
 				for(JsonElement a : arcos)
 				{
 					int idVertexFin = a.getAsJsonObject().get("IDVERTEX_FIN").getAsInt();
-					double costo = a.getAsJsonObject().get("COSTO").getAsDouble();
+					double costoDist = a.getAsJsonObject().get("COSTO_DISTANCIA").getAsDouble();
 
-					grafoArchivo.addEdge(objectID, idVertexFin, costo);
+					grafoArchivo.addEdge(objectID, idVertexFin, costoDist);
 				}
 			}
 
@@ -471,7 +482,7 @@ public class Modelo {
 	{
 		return mayorComparendo;
 	}
-	
+
 	public EstacionPolicia darMayorEstacion()
 	{
 		return mayorEstacion;
@@ -479,36 +490,46 @@ public class Modelo {
 
 	public String darMayorVertice()
 	{
-		return "ID: "+ mayorVertice.darID() + mayorVertice.darValor().toString();
+		return "ID: "+ mayorVertice.darID() + " "+ mayorVertice.darValor().toString();
 	}
-	
+
 	public String darArcosMayor()
 	{
-		String respuesta = "(" + mayorVertice.darID();
-		Iterator<Arco<Integer>> arcos = mayorVertice.darAdyacentes().iterator();
-		
-		while(arcos.hasNext())
+		if( mayorVertice.darAdyacentes().darTamano() > 0)
 		{
-			Arco<Integer> actual = arcos.next();
-			respuesta = respuesta + " , " + actual.darFin();
+			String respuesta = "( " + mayorVertice.darID();
+			Iterator<Arco<Integer>> arcos = mayorVertice.darAdyacentes().iterator();
+
+			while(arcos.hasNext())
+			{
+				Arco<Integer> actual = arcos.next();
+				respuesta = respuesta + " , " + actual.darFin();
+			}
+
+			respuesta = respuesta + " )";
+
+
+
+			return respuesta;
 		}
-		
-		respuesta = respuesta + " )";
-		
-		return respuesta;
+
+		else
+		{
+			return "Este vertice no tiene adyacentes";
+		}
 	}
-	
+
 	public Queue<EstacionPolicia> darEstaciones()
 	{
 		return estaciones;
 	}
 
-	public GrafoNoDirigido<Integer, LatitudYLongitud> darGrafo()
+	public GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> darGrafo()
 	{
 		return grafo;
 	}
-	
-	
+
+
 	public Comparendo[] copiarArreglo(Queue<Comparendo> arreglo)
 	{
 		Comparendo[] comparendos = new Comparendo[arreglo.darTamano()];
@@ -526,21 +547,21 @@ public class Modelo {
 	{
 		return estaciones.darTamano();
 	}
-	
+
 
 	public int darNumeroVertices()
 	{
 		return grafo.V();
 	}
 
-	
+
 	public int darNumeroArcos()
 	{
 		return grafo.E();
 	}
-	
 
-	public GrafoNoDirigido<Integer, LatitudYLongitud> darGrafoCreado()
+
+	public GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> darGrafoCreado()
 	{
 		return grafoArchivo;
 	}
@@ -568,13 +589,83 @@ public class Modelo {
 		return Math.pow(Math.sin(val / 2), 2);
 	}
 
-	
+
 
 	// -----------------------------------------------------------------
 	// Requerimientos iniciales
 	// -----------------------------------------------------------------
 
+	public Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> darVerticeMasCercano(double pLatitud, double pLongitud)
+	{
+		Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> menor = grafo.getVertex(0);
+		double distanciaMin = distance(pLatitud, pLongitud, menor.darValor().darLatitud(), menor.darValor().darLongitud());
+
+		int i = 1; 
+		while( i < grafo.V())
+		{
+			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> actual = grafo.getVertex(i);
+			double distancia = distance(pLatitud, pLongitud, actual.darValor().darLatitud(), actual.darValor().darLongitud());
+
+			if(distancia < distanciaMin)
+			{
+				menor = actual;
+			}
+		}
+
+		return menor;
+	}
+
+
+
+	public void adicionarComparendosAVertices()
+	{
+
+		Iterator<Comparendo> comp = comparendos.iterator();
+		
+		while(comp.hasNext())
+		{
+			Comparendo actual = comp.next();
+			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> masCercano = darVerticeMasCercano(actual.darLatitud(), actual.darLongitud());
+			
+			masCercano.agregarA1(actual);
+		}
+	}
+
+	
+	public void adicionarComparendosArcos()
+	{
+		for(int i = 0; i < grafo.V() ; i++)
+		{
+			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> buscado = grafo.getVertex(i);
+			int comp = buscado.darAdicional1().darTamano();
+			
+			Iterator<Arco<Integer>> adyacentes = buscado.darAdyacentes().iterator();
+			
+			while(adyacentes.hasNext())
+			{
+				Arco<Integer> actual = adyacentes.next();
+				Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> fin = grafo.getVertex(actual.darFin());
+				int costoComparendos = comp + fin.darAdicional1().darTamano();
+				
+				actual.cambiarCostoComparendos(costoComparendos);
+			}
+		}
+				
+	}
+	
 	
 
+	public void adicionarEstacionesDePolicia()
+	{
+		Iterator<EstacionPolicia> est = estaciones.iterator();
+		
+		while(est.hasNext())
+		{
+			EstacionPolicia actual = est.next();
+			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> masCercano = darVerticeMasCercano(actual.darLatitud(), actual.darLongitud());
 
+			masCercano.agregarA2(actual);
+			
+		}
+	}
 }

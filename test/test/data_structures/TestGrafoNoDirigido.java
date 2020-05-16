@@ -13,12 +13,12 @@ import model.data_structures.GrafoNoDirigido;
 public class TestGrafoNoDirigido 
 {
 
-	private GrafoNoDirigido<Integer, String> grafo;
+	private GrafoNoDirigido<Integer, String, String, String> grafo;
 	
 	@Before
 	public void setUpEscenario1()
 	{
-		grafo = new GrafoNoDirigido<Integer, String>();
+		grafo = new GrafoNoDirigido<Integer, String, String, String>();
 		grafo.addVertex(1, "A");
 		grafo.addVertex(2, "B");
 		grafo.addVertex(3, "C");
