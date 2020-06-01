@@ -42,6 +42,11 @@ public class GrafoNoDirigido<Key extends Comparable<Key>, Value, Adicional1, Adi
 		return vertices;
 	}
 	
+	public Iterable<Arco<Key>> edges()
+	{
+		return arcos;
+	}
+	
 	
 	public int V()
 	{

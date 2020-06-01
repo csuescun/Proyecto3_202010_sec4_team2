@@ -192,6 +192,10 @@ public class Comparendo implements Comparable<Comparendo> {
 		return " ObjectID: "+objectID+" Fecha-hora: "+fecha +" Infraccion: "+ infraccion + " Clase vehiculo: " + claseVehiculo + " Tipo Servicio: " + tipoServicio + " Localidad: " + localidad ;	
 	}
 	
+	public String datos2()
+	{
+		return "ObjectID: "+objectID+"latitud: "+latitud+"longitud: "+longitud;
+	}
 
 	
 	@Override

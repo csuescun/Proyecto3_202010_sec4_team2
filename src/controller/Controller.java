@@ -1,6 +1,8 @@
 package controller;
 
+import model.data_structures.Arco;
 import model.data_structures.Queue;
+import model.data_structures.Vertice;
 
 import java.util.ArrayList;
 import java.text.SimpleDateFormat;
@@ -130,8 +132,34 @@ public class Controller {
 				break;
 
 			case 6:
-
-
+				view.printMessage("Ingrese la latitud del vertice inicial");
+				double lat1 = Double.parseDouble(lector.next());
+				view.printMessage("Ingrese la longitud del vertice inicial");
+				double longit1 = Double.parseDouble(lector.next());
+				view.printMessage("Ingrese la latitud del vertice final");
+				double lat2 = Double.parseDouble(lector.next());
+				view.printMessage("Ingrese la longitud del vertice final");
+				double longit2 = Double.parseDouble(lector.next());
+				
+				Vertice v1 = modelo.darVerticeMasCercano(lat1, longit1);
+				Vertice v2 = modelo.darVerticeMasCercano(lat2, longit2);
+				
+				int s = (int)v1.darID();
+				int v = (int)v2.darID();
+				
+				Iterable<Arco> arcos =  modelo.dijkstra(s).pathTo(v);
+				
+				
+				for(Arco e : arcos)
+				{
+					Vertice i = modelo.darGrafo().getVertex((Integer)(e.darInicio()));
+					Comparendo actual = (Comparendo)i.darValor();
+					view.printMessage(actual.datos2());	
+					
+				}
+				view.printMessage(""+modelo.dijkstra(s).distTo(v));
+				
+				
 				break;
 
 			case 7:

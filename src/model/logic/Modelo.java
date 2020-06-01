@@ -55,7 +55,7 @@ public class Modelo {
 
 	private GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> grafoArchivo;
 
-
+	private Dijkstra dijkstra;
 
 	//ADICIONALES
 
@@ -673,9 +673,9 @@ public class Modelo {
 	// Requerimientos 
 	// -----------------------------------------------------------------
 
-	public void requerimiento1A()
+	public Dijkstra dijkstra(int s)
 	{
-		
+		return dijkstra = new Dijkstra<>(grafo,s );
 	}
 	
 	public void requerimiento2A()
