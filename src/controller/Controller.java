@@ -144,41 +144,54 @@ public class Controller {
 
 				break;
 
-			case 6:
-				view.printMessage("Ingrese la latitud del vertice inicial");
-				double lat1 = Double.parseDouble(lector.next());
-				view.printMessage("Ingrese la longitud del vertice inicial");
-				double longit1 = Double.parseDouble(lector.next());
-				view.printMessage("Ingrese la latitud del vertice final");
-				double lat2 = Double.parseDouble(lector.next());
-				view.printMessage("Ingrese la longitud del vertice final");
-				double longit2 = Double.parseDouble(lector.next());
+				case 6:
+					view.printMessage("Ingrese la latitud del vertice inicial");
+					double lat1 = Double.parseDouble(lector.next());
+					view.printMessage("Ingrese la longitud del vertice inicial");
+					double longit1 = Double.parseDouble(lector.next());
+					view.printMessage("Ingrese la latitud del vertice final");
+					double lat2 = Double.parseDouble(lector.next());
+					view.printMessage("Ingrese la longitud del vertice final");
+					double longit2 = Double.parseDouble(lector.next());
+					
+					Vertice v1 = modelo.darVerticeMasCercano(lat1, longit1);
+					Vertice v2 = modelo.darVerticeMasCercano(lat2, longit2);
+					
+					int s = (int)v1.darID();
+					int v = (int)v2.darID();
+					
+					Iterable<Arco> arcos =  modelo.dijkstra(s).pathTo(v);
+					
+					
+					for(Arco e : arcos)
+					{
+						Vertice i = modelo.darGrafo().getVertex((Integer)(e.darInicio()));
+						Comparendo actual = (Comparendo)i.darValor();
+						view.printMessage(actual.datos2());	
+						
+					}
+					view.printMessage(""+modelo.dijkstra(s).distTo(v));
+					
+					
+					break;
 
-				Vertice v1 = modelo.darVerticeMasCercano(lat1, longit1);
-				Vertice v2 = modelo.darVerticeMasCercano(lat2, longit2);
+				case 7:
 
-				int s = (int)v1.darID();
-				int v = (int)v2.darID();
+					view.printMessage("Escriba la cantidad de vertices que quiere buscar");
+					int m = Integer.parseInt(lector.next());
+					
+					for(Object e : modelo.requerimiento2A(m).edges())
+					{
+						Arco x = (Arco) e;
+						Vertice i = modelo.darGrafo().getVertex((Integer)(x.darInicio()));
+						Comparendo actual = (Comparendo)i.darValor();
+						view.printMessage(actual.datos2());	
+						view.printMessage(""+x.darCostoDistancia());
+						
+					}
+					
+					break;
 
-				Iterable<Arco> arcos =  modelo.dijkstra(s).pathTo(v);
-
-
-				for(Arco e : arcos)
-				{
-					Vertice i = modelo.darGrafo().getVertex((Integer)(e.darInicio()));
-					Comparendo actual = (Comparendo)i.darValor();
-					view.printMessage(actual.datos2());	
-
-				}
-				view.printMessage(""+modelo.dijkstra(s).distTo(v));
-
-
-				break;
-
-			case 7:
-
-
-				break;
 
 			case 8:
 				view.printMessage("Ingrese la latitud del vertice inicial");
