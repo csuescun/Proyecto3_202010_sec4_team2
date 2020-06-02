@@ -1,6 +1,6 @@
 package model.data_structures;
 
-public class Arco<Key> 
+public class Arco<Key extends Comparable<Key>> 
 {
 	private Key idVertexInicio;
 

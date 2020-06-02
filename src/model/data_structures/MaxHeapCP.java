@@ -2,7 +2,7 @@ package model.data_structures;
 
 import java.util.Comparator;
 
-public class MaxHeapCP <T extends Comparable<T>> 
+public class MaxHeapCP <T> 
 {
 
 	private T[] elementosHeap;
@@ -53,6 +53,12 @@ public class MaxHeapCP <T extends Comparable<T>>
 		swim(tamano);
 	}
 
+
+	public T[] darElementos()
+	{
+		return elementosHeap;
+	}
+	
 
 	public T darMax()
 	{

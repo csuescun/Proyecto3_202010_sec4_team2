@@ -30,7 +30,7 @@ import model.data_structures.*;
 public class Modelo {
 
 
-	public static String PATH = "./data/Comparendos_DEI_2018_Bogotá_D.C.geojson";
+	public static String PATH = "./data/Comparendos_DEI_2018_Bogotá_D.C_small_50000_sorted.geojson";
 
 	public static String ARCHIVO_ESTACIONES = "./data/estacionpolicia.geojson";
 
@@ -55,6 +55,8 @@ public class Modelo {
 
 	private GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> grafoArchivo;
 
+	private MaxHeapCP<Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>> heapCecilia;
+
 	private Dijkstra dijkstra;
 
 	//ADICIONALES
@@ -77,6 +79,7 @@ public class Modelo {
 		comparendos = new Queue<Comparendo>();
 
 		estaciones = new Queue<EstacionPolicia>();
+		heapCecilia  = new MaxHeapCP<Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>>(new ComparadorNumComparendos<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>());
 
 		grafo = new GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>();
 		grafoArchivo = new GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>();
@@ -616,18 +619,42 @@ public class Modelo {
 	}
 
 
+	public Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> darVerticeMasCercano2(double pLatitud, double pLongitud)
+	{
+		Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> menor = grafo.getVertex(0);
+		double distanciaMin = distance(pLatitud, pLongitud, menor.darValor().darLatitud(), menor.darValor().darLongitud());
+
+
+		int i = 1; 
+		boolean encontrado = false;
+		while( i < grafo.V() & !encontrado)
+		{
+			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> actual = grafo.getVertex(i);
+			double distancia = distance(pLatitud, pLongitud, actual.darValor().darLatitud(), actual.darValor().darLongitud());
+
+			if(distancia < 0.025)
+			{
+				menor = actual;
+				encontrado = true;	
+			}
+			i++;
+		}
+
+		return menor;
+	}
 
 	public void adicionarComparendosAVertices()
 	{
 
 		Iterator<Comparendo> comp = comparendos.iterator();
-
-		while(comp.hasNext())
+		int i = 0;
+		while(comp.hasNext() & i <600)
 		{
 			Comparendo actual = comp.next();
-			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> masCercano = darVerticeMasCercano(actual.darLatitud(), actual.darLongitud());
+			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> masCercano = darVerticeMasCercano2(actual.darLatitud(), actual.darLongitud());
 
 			masCercano.agregarA1(actual);
+			i++;
 		}
 	}
 
@@ -677,30 +704,196 @@ public class Modelo {
 	{
 		return dijkstra = new Dijkstra<>(grafo,s );
 	}
-	
+
 	public void requerimiento2A()
 	{
-		
+
 	}
-	
-	public void requerimiento1B()
+
+	public GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> requerimiento1B(double latitudInicial, double longitudInicial, double latitudFinal, double longitudFinal)
 	{
-		
+		GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> respuesta = new GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>();
+		int costoComparendos = 0;
+		int costoDistancia = 0 ;
+
+		Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> vertexInicial = darVerticeMasCercano(latitudInicial, longitudInicial);
+		Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> vertexFinal = darVerticeMasCercano(latitudFinal, longitudFinal);
+
+		respuesta.addVertex(vertexInicial.darID(), vertexInicial.darValor());
+		respuesta.addVertex(vertexFinal.darID(), vertexFinal.darValor());
+
+		System.out.println("El ID del vertice de inicio es: "+ vertexInicial.darID());
+		System.out.println("El ID del vertice de destino es: " + vertexFinal.darID());
+
+		Dikjstra2<LatitudYLongitud, Comparendo, EstacionPolicia> DJ = new Dikjstra2<LatitudYLongitud, Comparendo, EstacionPolicia>(grafo, vertexInicial);
+		Iterator<Arco<Integer>> ruta = DJ.pathTo(vertexFinal);
+
+		if(ruta != null)
+		{
+			while(ruta.hasNext())
+			{
+				Arco<Integer> actual = ruta.next();
+
+				Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> inicioActual = grafo.getVertex(actual.darInicio());
+				Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> finalActual = grafo.getVertex(actual.darFin());
+
+				respuesta.addVertex(actual.darInicio(), inicioActual.darValor());
+				respuesta.addVertex(actual.darFin(), finalActual.darValor());
+				respuesta.addEdge(actual.darInicio(), actual.darFin(), actual.darCostoDistancia());
+
+				System.out.println("Siguiente paso: " + "ID: " + actual.darFin() + finalActual.darValor().toString());
+				costoComparendos += actual.darCostoComparendos();
+				costoDistancia += actual.darCostoDistancia();
+			}	
+
+			System.out.println("Se ha llegado al destino deseado" + "---------\n");
+			System.out.println("Total de vértices del recorrido:" + respuesta.V());
+			System.out.println("Costo por comparendos: " + costoComparendos);
+			System.out.println("Costo por distancia: " + costoDistancia);
+
+		}
+
+		else
+		{
+			System.out.println("Lastimosamente no hay camino entre las dos ubicaciones deseadas");
+		}
+
+		return respuesta;
 	}
-	
-	public void requerimiento2B()
+
+	public GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> requerimiento2B(int M)
 	{
+		GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> respuesta = new GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>();
+		int costo = 0;
+
+		for(int i = 0; i < M; i++)
+		{
+			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> actual = (Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>) heapCecilia.darElementos()[i];
+			respuesta.addVertex(actual.darID(), actual.darValor());
+
+		}
+
+		for(int i= 0; i < M; i++)
+		{
+			Dikjstra2<LatitudYLongitud, Comparendo, EstacionPolicia> DJ = new Dikjstra2<LatitudYLongitud, Comparendo, EstacionPolicia>(grafo, heapCecilia.darElementos()[i]);
+
+			for(int j=i+1; j < M; j++)
+			{
+				Iterator<Arco<Integer>> ruta = DJ.pathTo(heapCecilia.darElementos()[j]);
+
+				if(ruta != null)
+				{
+					while(ruta.hasNext())
+					{
+						Arco<Integer> actual = ruta.next();
+
+						Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> inicioActual = grafo.getVertex(actual.darInicio());
+						Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> finalActual = grafo.getVertex(actual.darFin());
+
+						if(respuesta.getVertex(actual.darInicio())== null)
+							respuesta.addVertex(actual.darInicio(), inicioActual.darValor());
+
+						if(respuesta.getVertex(actual.darFin())==null)
+							respuesta.addVertex(actual.darFin(), finalActual.darValor());
+
+						if(respuesta.getVertex(actual.darFin())!=null && respuesta.getVertex(actual.darInicio())!= null)
+						respuesta.addEdge(actual.darInicio(), actual.darFin(), actual.darCostoDistancia());
+
+					}	
+
+				}
+			}
+		}
 		
+		return MST(respuesta);
+
 	}
-	
+
+
+	public GrafoNoDirigido<Integer,LatitudYLongitud, Comparendo, EstacionPolicia> MST(GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> graf)
+	{
+		GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> respuesta = new GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>();
+		
+		Kruskal mst = new Kruskal(graf);
+		Iterable<Arco<Integer>> arcos = mst.edges();
+		
+		int costoTotal =0;
+		
+		if(arcos != null)
+		{
+			Iterator<Arco<Integer>> iter = arcos.iterator();
+			while(iter.hasNext())
+			{
+				Arco<Integer> actual = iter.next();
+				
+				Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> inicioActual = grafo.getVertex(actual.darInicio());
+				Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> finalActual = grafo.getVertex(actual.darFin());
+				costoTotal += actual.darCostoDistancia();
+				
+				if(respuesta.getVertex(actual.darInicio())== null)
+					respuesta.addVertex(actual.darInicio(), inicioActual.darValor());
+
+				if(respuesta.getVertex(actual.darFin())==null)
+					respuesta.addVertex(actual.darFin(), finalActual.darValor());
+
+				if(respuesta.getVertex(actual.darFin())!=null && respuesta.getVertex(actual.darInicio())!= null)
+				respuesta.addEdge(actual.darInicio(), actual.darFin(), actual.darCostoDistancia());
+			}
+		}
+		
+		System.out.println("Dentro del MST, se visitaron los siguientes vertices:");
+		
+		for(int i=0; i < respuesta.V(); i++)
+		{
+			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> act = respuesta.darVertices().get(i);
+			if(act != null)
+			{
+				System.out.println("" + (i+1)+ ". ID:" + act.darID());
+			}
+			
+		}
+		
+		System.out.println("Los arcos que se visitaron fueron: ");
+		Iterator<Arco<Integer>> iter2= respuesta.edges().iterator();
+		int j =1;
+		
+		while(iter2.hasNext())
+		{
+			Arco<Integer> arc = iter2.next();
+			System.out.println(""+ j + ". Inicio: " + arc.darInicio() + "- Fin:" + arc.darFin());
+			j++;	
+		}
+		
+		System.out.println("El número total de vertices fue:" + respuesta.V());
+		System.out.println("El número total de arcos fue:" + respuesta.E());
+		System.out.println("La distancia total fue: "+  costoTotal);
+		System.out.println("Por lo tanto, el costo total es de:" + costoTotal*10000 + "USD");
+		return respuesta;	
+	}
+
+	public void crearHeapVerticesComparendos()
+	{
+
+		int i = 1; 
+		while( i < grafo.V())
+		{
+			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> actual = grafo.getVertex(i);
+			heapCecilia.agregar(actual);
+			i++;
+
+		}
+
+
+	}
+
 	public void requerimiento1C()
 	{
-		
+
 	}
-	
+
 	public void requerimiento2C()
 	{
-		
+
 	}
 }
 

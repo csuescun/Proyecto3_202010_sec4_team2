@@ -2,7 +2,7 @@ package model.data_structures;
 
 import model.data_structures.Arco;
 
-public class Vertice<Key, Value, Adicional1, Adicional2> 
+public class Vertice<Key extends Comparable<Key>, Value, Adicional1, Adicional2> 
 {
 	private Key idVertex;
 
@@ -85,5 +85,6 @@ public class Vertice<Key, Value, Adicional1, Adicional2>
 		adicion2.enqueue(v);
 	}
 
+	
 	
 }
