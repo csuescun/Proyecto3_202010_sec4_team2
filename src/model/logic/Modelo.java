@@ -779,8 +779,8 @@ public class Modelo {
 		System.out.println("El ID del vertice de inicio es: "+ vertexInicial.darID());
 		System.out.println("El ID del vertice de destino es: " + vertexFinal.darID());
 
-		Dikjstra2<LatitudYLongitud, Comparendo, EstacionPolicia> DJ = new Dikjstra2<LatitudYLongitud, Comparendo, EstacionPolicia>(grafo, vertexInicial);
-		Iterator<Arco<Integer>> ruta = DJ.pathTo(vertexFinal);
+		dijkstra = new Dijkstra<>(grafo, (Integer) vertexInicial.darID());
+		Iterator<Arco<Integer>> ruta = dijkstra.pathTo((Integer)vertexFinal.darID()).iterator();
 
 		if(ruta != null)
 		{
@@ -836,10 +836,10 @@ public class Modelo {
 		int i= 0; 
 		while(primero.darSiguiente()!= null && primero.darSiguiente().darSiguiente() != null && i < M-1)
 		{
-			Dikjstra2<LatitudYLongitud, Comparendo, EstacionPolicia> DJ = new Dikjstra2<LatitudYLongitud, Comparendo, EstacionPolicia>(grafo, primero.darElemento());
+			dijkstra = new Dijkstra<>(grafo, (Integer)primero.darElemento().darID());
 			Node<Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>> siguiente = primero.darSiguiente();
 
-			Iterator<Arco<Integer>> ruta = DJ.pathTo(siguiente.darElemento());
+			Iterator<Arco<Integer>> ruta = dijkstra.pathTo((Integer)siguiente.darElemento().darID()).iterator();
 
 			if(ruta != null)
 			{

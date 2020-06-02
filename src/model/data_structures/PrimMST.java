@@ -80,6 +80,7 @@ public class PrimMST <Key extends Comparable<Key>> {
             }
         return weight;
     }
+}
 
 
    
