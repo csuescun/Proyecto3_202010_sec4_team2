@@ -36,7 +36,7 @@ public class Dikjstra2<Value, Adicional1, Adicional2>
 		while(!pq.isEmpty())
 		{
 			int v = pq.delMin();
-			Vertice<Integer, Value, Adicional1, Adicional2> vertexActual = vertices.get(v);
+			Vertice<Integer, Value, Adicional1, Adicional2> vertexActual = grafo.getVertex(v);
 			Iterator<Arco<Integer>> ady = vertexActual.darAdyacentes().iterator();
 			
 			while(ady.hasNext())

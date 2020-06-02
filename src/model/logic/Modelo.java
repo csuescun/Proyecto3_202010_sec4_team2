@@ -646,15 +646,12 @@ public class Modelo {
 	public void adicionarComparendosAVertices()
 	{
 		Iterator<Comparendo> comp = comparendos.iterator();
-		int i = 0; 
-		while(comp.hasNext() && i < 60)
+		while(comp.hasNext())
 		{
 			Comparendo actual = comp.next();
 			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> masCercano = darVerticeMasCercano(actual.darLatitud(), actual.darLongitud());
 
 			masCercano.agregarA1(actual);
-			System.out.println("" + i);
-			i++;
 
 		}
 	}
@@ -677,8 +674,6 @@ public class Modelo {
 
 				actual.cambiarCostoComparendos(costoComparendos);
 			}
-
-			System.out.println("" + i);
 		}
 
 	}
@@ -779,6 +774,8 @@ public class Modelo {
 
 		}
 
+
+
 		Node<Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>> primero =  maximos.darPrimerNodo();
 		int i= 0; 
 		while(primero.darSiguiente()!= null && primero.darSiguiente().darSiguiente() != null && i < M-1)
@@ -797,114 +794,115 @@ public class Modelo {
 					Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> inicioActual = grafo.getVertex(actual.darInicio());
 					Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> finalActual = grafo.getVertex(actual.darFin());
 
+					
 					if(respuesta.getVertex(actual.darInicio())== null)
 						respuesta.addVertex(actual.darInicio(), inicioActual.darValor());
 
 					if(respuesta.getVertex(actual.darFin())==null)
 						respuesta.addVertex(actual.darFin(), finalActual.darValor());
 
-					if(respuesta.getVertex(actual.darFin())!=null && respuesta.getVertex(actual.darInicio())!= null)
-						respuesta.addEdge(actual.darInicio(), actual.darFin(), actual.darCostoDistancia());
+					respuesta.addEdge(actual.darInicio(), actual.darFin(), actual.darCostoDistancia());
 
 				}	
 
 			}
-			
+
+
 			i++;
 		}
 
-	
 
 
-	return MST(respuesta);
+		return MST(respuesta);
 
-}
-
-
-public GrafoNoDirigido<Integer,LatitudYLongitud, Comparendo, EstacionPolicia> MST(GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> graf)
-{
-	GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> respuesta = new GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>();
-
-	Kruskal mst = new Kruskal(graf);
-	Iterable<Arco<Integer>> arcos = mst.edges();
-
-	int costoTotal =0;
-
-	if(arcos != null)
-	{
-		Iterator<Arco<Integer>> iter = arcos.iterator();
-		while(iter.hasNext())
-		{
-			Arco<Integer> actual = iter.next();
-
-			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> inicioActual = grafo.getVertex(actual.darInicio());
-			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> finalActual = grafo.getVertex(actual.darFin());
-			costoTotal += actual.darCostoDistancia();
-
-			if(respuesta.getVertex(actual.darInicio())== null)
-				respuesta.addVertex(actual.darInicio(), inicioActual.darValor());
-
-			if(respuesta.getVertex(actual.darFin())==null)
-				respuesta.addVertex(actual.darFin(), finalActual.darValor());
-
-			if(respuesta.getVertex(actual.darFin())!=null && respuesta.getVertex(actual.darInicio())!= null)
-				respuesta.addEdge(actual.darInicio(), actual.darFin(), actual.darCostoDistancia());
-		}
 	}
 
-	System.out.println("Dentro del MST, se visitaron los siguientes vertices:");
 
-	for(int i=0; i < respuesta.V(); i++)
+	public GrafoNoDirigido<Integer,LatitudYLongitud, Comparendo, EstacionPolicia> MST(GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> graf)
 	{
-		Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> act = respuesta.darVertices().get(i);
-		if(act != null)
+		GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> respuesta = new GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>();
+
+		Kruskal mst = new Kruskal(graf);
+		Iterable<Arco<Integer>> arcos = mst.edges();
+
+		int costoTotal =0;
+
+		if(arcos != null)
 		{
-			System.out.println("" + (i+1)+ ". ID:" + act.darID());
+			Iterator<Arco<Integer>> iter = arcos.iterator();
+			while(iter.hasNext())
+			{
+				Arco<Integer> actual = iter.next();
+
+				Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> inicioActual = grafo.getVertex(actual.darInicio());
+				Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> finalActual = grafo.getVertex(actual.darFin());
+				costoTotal += actual.darCostoDistancia();
+
+				if(respuesta.getVertex(actual.darInicio())== null)
+					respuesta.addVertex(actual.darInicio(), inicioActual.darValor());
+
+				if(respuesta.getVertex(actual.darFin())==null)
+					respuesta.addVertex(actual.darFin(), finalActual.darValor());
+
+				if(respuesta.getVertex(actual.darFin())!=null && respuesta.getVertex(actual.darInicio())!= null)
+					respuesta.addEdge(actual.darInicio(), actual.darFin(), actual.darCostoDistancia());
+			}
 		}
 
+		System.out.println("Dentro del MST, se visitaron los siguientes vertices:");
+
+		for(int i=0; i < respuesta.V(); i++)
+		{
+			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> act = respuesta.darVertices().get(i);
+			if(act != null)
+			{
+				System.out.println("" + (i+1)+ ". ID:" + act.darID());
+			}
+
+		}
+
+		System.out.println("Los arcos que se visitaron fueron: ");
+		Iterator<Arco<Integer>> iter2= respuesta.edges().iterator();
+		int j =1;
+
+		while(iter2.hasNext())
+		{
+			Arco<Integer> arc = iter2.next();
+			System.out.println(""+ j + ". Inicio: " + arc.darInicio() + "- Fin:" + arc.darFin());
+			j++;	
+		}
+
+		System.out.println("El número total de vertices fue:" + respuesta.V());
+		System.out.println("El número total de arcos fue:" + respuesta.E());
+		System.out.println("La distancia total fue: "+  costoTotal);
+		System.out.println("Por lo tanto, el costo total es de:" + costoTotal*10000 + "USD");
+		return respuesta;	
 	}
 
-	System.out.println("Los arcos que se visitaron fueron: ");
-	Iterator<Arco<Integer>> iter2= respuesta.edges().iterator();
-	int j =1;
-
-	while(iter2.hasNext())
+	public void crearHeapVerticesComparendos()
 	{
-		Arco<Integer> arc = iter2.next();
-		System.out.println(""+ j + ". Inicio: " + arc.darInicio() + "- Fin:" + arc.darFin());
-		j++;	
+
+		int i = 1; 
+		while(i < grafo.V())
+		{
+			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> actual = grafo.getVertex(i);
+			heapCecilia.agregar(actual);
+			i++;
+
+		}
+
+		System.out.println(""+ heapCecilia.darNumElementos());
+
 	}
 
-	System.out.println("El número total de vertices fue:" + respuesta.V());
-	System.out.println("El número total de arcos fue:" + respuesta.E());
-	System.out.println("La distancia total fue: "+  costoTotal);
-	System.out.println("Por lo tanto, el costo total es de:" + costoTotal*10000 + "USD");
-	return respuesta;	
-}
-
-public void crearHeapVerticesComparendos()
-{
-
-	int i = 1; 
-	while( i < grafo.V())
+	public void requerimiento1C()
 	{
-		Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> actual = grafo.getVertex(i);
-		heapCecilia.agregar(actual);
-		i++;
 
 	}
 
+	public void requerimiento2C()
+	{
 
-}
-
-public void requerimiento1C()
-{
-
-}
-
-public void requerimiento2C()
-{
-
-}
+	}
 }
 
