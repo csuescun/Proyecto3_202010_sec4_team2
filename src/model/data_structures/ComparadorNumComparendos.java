@@ -2,14 +2,20 @@ package model.data_structures;
 
 import java.util.Comparator;
 
-public class ComparadorNumComparendos<Key extends Comparable<Key>, Value, Adicional1, Adicional2> implements Comparator<Vertice<Key, Value, Adicional1, Adicional2>>
+import model.logic.Comparendo;
+import model.logic.EstacionPolicia;
+import model.logic.LatitudYLongitud;
+
+public class ComparadorNumComparendos implements Comparator<Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>>
 {
 
+
 	@Override
-	public int compare(Vertice<Key, Value, Adicional1, Adicional2> vertice1, Vertice<Key, Value, Adicional1, Adicional2> vertice2) 
-	{
-		int tam1 = vertice1.darAdicional1().darTamano();
-		int tam2 = vertice2.darAdicional1().darTamano();
+	public int compare(Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> o1,
+			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> o2) {
+		
+		int tam1 = o1.darAdicional1().darTamano();
+		int tam2 = o2.darAdicional1().darTamano();
 
 		if(tam1 > tam2)
 			return 1;

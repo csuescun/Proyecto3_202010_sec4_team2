@@ -2,24 +2,24 @@ package model.data_structures;
 
 import java.util.Comparator;
 
-public class MaxHeapCP <T extends Comparable<T>> 
+public class MaxHeapCP2<Key extends Comparable<Key>, Value, Adicional1, Adicional2> 
 {
 
-	private T[] elementosHeap;
+	private Vertice<Key, Value, Adicional1, Adicional2>[] elementosHeap;
 
 	private int tamanoMaximo;
 
 	private int tamano;
 	
-	private Comparator<T> comparador;
+	private Comparator<Vertice<Key, Value, Adicional1, Adicional2>> comparador;
 
 
-	public MaxHeapCP(Comparator<T> pComparador)
+	public MaxHeapCP2(Comparator<Vertice<Key, Value, Adicional1, Adicional2>> pComparador)
 	{
 
 		tamanoMaximo = 10;
 
-		elementosHeap = (T[]) new Comparable[tamanoMaximo+1];
+		elementosHeap =(Vertice<Key, Value, Adicional1, Adicional2>[]) new Comparable[tamanoMaximo+1];
 
 		tamano = 0 ;
 
@@ -33,11 +33,11 @@ public class MaxHeapCP <T extends Comparable<T>>
 		return tamano;
 	}
 
-	public void agregar(T el)
+	public void agregar(Vertice<Key, Value, Adicional1, Adicional2> el)
 	{
 		if(tamano == tamanoMaximo)
 		{
-			T[] temp = (T[]) new Comparable[2*tamanoMaximo+1];
+			Vertice<Key, Value, Adicional1, Adicional2>[] temp = (Vertice<Key, Value, Adicional1, Adicional2>[]) new Comparable[2*tamanoMaximo+1];
 			for(int i= 1; i <= tamano; i++)
 			{
 				temp[i]= elementosHeap[i];
@@ -54,20 +54,20 @@ public class MaxHeapCP <T extends Comparable<T>>
 	}
 
 
-	public T[] darElementos()
+	public Vertice<Key, Value, Adicional1, Adicional2>[] darElementos()
 	{
-		return (T[]) elementosHeap;
+		return elementosHeap;
 	}
 	
 
-	public T darMax()
+	public Vertice<Key, Value, Adicional1, Adicional2> darMax()
 	{
 		return elementosHeap[1];
 	}
 
-	public T sacarMax()
+	public Vertice<Key, Value, Adicional1, Adicional2> sacarMax()
 	{
-		T buscado = elementosHeap[1];
+		Vertice<Key, Value, Adicional1, Adicional2> buscado = elementosHeap[1];
 		elementosHeap[1] = elementosHeap[tamano--];
 		elementosHeap[tamano +1]= null; 
 
@@ -122,7 +122,7 @@ public class MaxHeapCP <T extends Comparable<T>>
 
 	private void exch (int i, int j)
 	{
-		T t = elementosHeap[i];
+		Vertice<Key, Value, Adicional1, Adicional2> t = elementosHeap[i];
 		elementosHeap[i] = elementosHeap[j];
 		elementosHeap[j] = t;
 	}

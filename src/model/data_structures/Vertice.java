@@ -2,7 +2,7 @@ package model.data_structures;
 
 import model.data_structures.Arco;
 
-public class Vertice<Key extends Comparable<Key>, Value, Adicional1, Adicional2> 
+public class Vertice<Key extends Comparable<Key>, Value, Adicional1, Adicional2> implements Comparable<Vertice<Key, Value, Adicional1, Adicional2>>
 {
 	private Key idVertex;
 
@@ -84,6 +84,30 @@ public class Vertice<Key extends Comparable<Key>, Value, Adicional1, Adicional2>
 	{
 		adicion2.enqueue(v);
 	}
+
+	
+
+	
+
+	@Override
+	public int compareTo(Vertice<Key, Value, Adicional1, Adicional2> o) {
+		
+		int tam1 = this.darAdicional1().darTamano();
+		int tam2 = o.darAdicional1().darTamano();
+
+		if(tam1 > tam2)
+			return 1;
+
+
+		else if(tam2 < tam1)
+			return -1;
+
+
+		else
+			return  0;
+	}
+
+
 
 	
 	

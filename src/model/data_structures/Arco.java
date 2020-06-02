@@ -1,6 +1,6 @@
 package model.data_structures;
 
-public class Arco<Key extends Comparable<Key>> 
+public class Arco<Key extends Comparable<Key>> implements Comparable<Arco<Key>>
 {
 	private Key idVertexInicio;
 
@@ -47,6 +47,13 @@ public class Arco<Key extends Comparable<Key>>
 	public int darCostoComparendos()
 	{
 		return costoComparendos;
+	}
+
+
+	@Override
+	public int compareTo(Arco<Key> o) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 
