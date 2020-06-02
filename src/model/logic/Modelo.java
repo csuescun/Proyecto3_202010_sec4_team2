@@ -651,12 +651,14 @@ public class Modelo {
 	public void adicionarComparendosAVertices()
 	{
 		Iterator<Comparendo> comp = comparendos.iterator();
-		while(comp.hasNext())
+		int i = 0;
+		while(comp.hasNext() && i < 100)
 		{
 			Comparendo actual = comp.next();
 			Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> masCercano = darVerticeMasCercano(actual.darLatitud(), actual.darLongitud());
 
 			masCercano.agregarA1(actual);
+			i++;
 
 		}
 	}
@@ -779,8 +781,8 @@ public class Modelo {
 		System.out.println("El ID del vertice de inicio es: "+ vertexInicial.darID());
 		System.out.println("El ID del vertice de destino es: " + vertexFinal.darID());
 
-		dijkstra = new Dijkstra<>(grafo, (Integer) vertexInicial.darID());
-		Iterator<Arco<Integer>> ruta = dijkstra.pathTo((Integer)vertexFinal.darID()).iterator();
+		Dikjstra2<LatitudYLongitud, Comparendo, EstacionPolicia> DJ = new Dikjstra2<LatitudYLongitud, Comparendo, EstacionPolicia>(grafo, vertexInicial);
+		Iterator<Arco<Integer>> ruta = DJ.pathTo(vertexFinal);
 
 		if(ruta != null)
 		{
@@ -836,10 +838,10 @@ public class Modelo {
 		int i= 0; 
 		while(primero.darSiguiente()!= null && primero.darSiguiente().darSiguiente() != null && i < M-1)
 		{
-			dijkstra = new Dijkstra<>(grafo, (Integer)primero.darElemento().darID());
+			Dikjstra2<LatitudYLongitud, Comparendo, EstacionPolicia> DJ = new Dikjstra2<LatitudYLongitud, Comparendo, EstacionPolicia>(grafo, primero.darElemento());
 			Node<Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>> siguiente = primero.darSiguiente();
 
-			Iterator<Arco<Integer>> ruta = dijkstra.pathTo((Integer)siguiente.darElemento().darID()).iterator();
+			Iterator<Arco<Integer>> ruta = DJ.pathTo(siguiente.darElemento());
 
 			if(ruta != null)
 			{
