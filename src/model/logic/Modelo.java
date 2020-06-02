@@ -58,6 +58,10 @@ public class Modelo {
 	private MaxHeapCP<Vertice<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>> heapCecilia;
 
 	private Dijkstra dijkstra;
+	
+	private PrimMST prim;
+	
+	private MaxHeapCP<Comparendo> maxGravedad;
 
 	//ADICIONALES
 
@@ -83,6 +87,7 @@ public class Modelo {
 
 		grafo = new GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>();
 		grafoArchivo = new GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia>();
+		maxGravedad = new MaxHeapCP<>(new Gravedad());
 
 	}
 
@@ -708,10 +713,61 @@ public class Modelo {
 		return dijkstra = new Dijkstra<>(grafo,s );
 	}
 
-	public void requerimiento2A()
+	public PrimMST requerimiento2A(int c)
 	{
-
+		
+		GrafoNoDirigido nuevo = new GrafoNoDirigido<>();
+		
+		int i = 0;
+		while(i<c)
+		{
+			Comparendo actual = comparendos.dequeue();
+			maxGravedad.agregar(actual);
+			i++;
+		}
+		int j=0;
+		while(j<c)
+		{
+			Comparendo actual = maxGravedad.sacarMax();
+			double a = actual.darLatitud();
+			double b = actual.darLongitud();
+			Vertice primero = darVerticeMasCercano(a,b);
+			int uno = (Integer)primero.darID();
+			
+			Comparendo siguiente = maxGravedad.sacarMax();
+			double o = siguiente.darLatitud();
+			double p = siguiente.darLongitud();
+			
+			Vertice segundo = darVerticeMasCercano(o, p);
+			int dos = (Integer)segundo.darID();
+			
+			
+			dijkstra = new Dijkstra<>(grafo, uno);
+			
+			Iterable<Arco> arcos = dijkstra.pathTo(dos);	
+			
+			for(Object e: arcos)
+			{
+				Arco x = (Arco) e;
+				
+				Vertice inicial = grafo.getVertex((Integer)x.darInicio());
+				Vertice fin = grafo.getVertex((Integer)x.darFin());
+				
+				nuevo.addVertex((Integer)x.darInicio(), inicial.darValor());
+				nuevo.addVertex((Integer)x.darFin(), fin.darValor());
+				
+				nuevo.addEdge((Integer)x.darInicio(), (Integer)x.darFin(), x.darCostoDistancia());
+				
+				
+			}
+			
+		}
+		
+		return prim = new PrimMST(nuevo);
 	}
+
+
+
 
 	public GrafoNoDirigido<Integer, LatitudYLongitud, Comparendo, EstacionPolicia> requerimiento1B(double latitudInicial, double longitudInicial, double latitudFinal, double longitudFinal)
 	{
